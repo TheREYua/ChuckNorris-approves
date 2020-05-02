@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>	
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/j2ee/dtds/web-app_2_3.dtd">
+<web-app>
+	
+<!--
+	Maze Wars SVG, by Chris W. Johnson, is a web-based, first-person shooter ultimately inspired by the famous game 
+	"Maze War" created by Steve Colley, Howard Palmer and Greg Thompson. 
+
+	Copyright (C) 2008-2009 Chris W. Johnson. <http://chriswjohnson.blogspot.com/>
+
+	Maze Wars SVG is free software: you can redistribute it and/or modify it under the terms of the GNU General Public 
+	License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any 
+	later version.
+
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
+	details.
+
+	You should have received a copy of the GNU General Public License along with this program. If not, see 
+	<http://www.gnu.org/licenses/>.
+-->
+
+	<display-name>Maze Wars</display-name>
+	<description>
+		A re-creation of the classic Maze War game.
+	</description>
+	
+	<context-param>
+		<param-name>qwicap-development-mode</param-name>
+		<param-value>false</param-value>
+		<description>
+			If this value is "true", when reporting an exception Qwicap
+			includes the error message from the exception in the user-
+			visible message that it displays, and it also embeds into a 
+			comment block in the web page the entire chain of stack 
+			traces from the exception. This can be useful during the 
+			development and debugging of a web application, but is a bad 
+			practice from a security standpoint.
+			
+			If this value is "false", Qwicap only reports opaque "incident
+			codes" to the user, and never includes stack traces in the 
+			pages. This gives would-be attackers vastly less information 
+			with which to guide their attacks.
+			
+			If this context parameter is omitted, development mode is 
+			considered to be disabled.
+		</description>
+	</context-param>
+	
+	<context-param>
+		<param-name>qwicap-threads-minimum</param-name>
+		<param-value>0</param-value>
+		<description>
+			The number of threads initially present in Qwicap's thread 
+			pool. This value must not be greater than 
+			"qwicap-threads-spare-maximum".
+		</description>
+	</context-param>
+	
+	<context-param>
+		<param-name>qwicap-threads-spare-maximum</param-name>
+		<param-value>0</param-value>
+		<description>
+			The maximum number of spare threads that Qwicap will retain 
+			in its thread pool. This value must not be greater than 
+			"qwicap-threads-maximum".
+		</description>
+	</context-param>
+	
+	<context-param>
+		<param-name>qwicap-threads-maximum</param-name>
+		<param-value>50</param-value>
+		<description>
+			The maximum size of the Qwicap thread pool. This is the 
+			maximum number of concurrent users this web application 
+			will be able to support.
+		</description>
+	</context-param>
+	
+	<context-param>
+		<param-name>qwicap-thread-stack-kilobytes</param-name>
+		<param-value>384</param-value>
+		<description>
+			The amount of stack space allocated to each thread in the 
+			thread pool. A value of zero causes the platform-specific 
+			default stack size to be used. Platforms are free to 
+			ignore, or change, the stack size setting, no matter what 
+			value is specified.
+		</description>
+	</context-param>
+	
+	<servlet>
+		<servlet-name>MazeWarsSetup</servlet-name>
+		<display-name>Welcome to Maze Wars</display-name>
+		<description>
+			A web application that allows administrator to configure, 
+			and users to enter, the Maze Wars game. 
+		</description>
+		<servlet-class>edu.utexas.its.eis.tools.qwicap.servlet.QwicapServlet</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>MazeWars</servlet-name>
+		<display-name>Maze Wars Server Application</display-name>
+		<description>
+			The faceless server-side code of the Maze Wars game.
+		</description>
+		<servlet-class>com.mac.chriswjohnson.mazewars.MazeWarsServlet</servlet-class>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>MazeWarsSetup</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>MazeWars</servlet-name>
+		<url-pattern>/mw/</url-pattern>
+	</servlet-mapping>
+	
+	<session-config>
+		<session-timeout>10</session-timeout>    <!-- 10 minutes -->
+	</session-config>
+	
+</web-app>

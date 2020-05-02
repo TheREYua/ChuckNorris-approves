@@ -1,0 +1,15 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: appli-ku-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/rewrite-target: "/"
+spec:
+  rules:
+  - http:
+      paths:
+      #- path: "/"
+      - backend:
+          serviceName: appli-ku-svc-lb
+          servicePort: 80

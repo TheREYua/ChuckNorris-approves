@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: appli-ku-svc-lb  
+  labels:
+    server: nginx
+spec:
+  type: LoadBalancer
+  loadBalancerIP: ""
+  selector:
+    app: appli-ku
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80  
+      targetPort: 80
+    - name: http-tomcat
+      protocol: TCP
+      port: 8090
+      targetPort: 8080
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 443
+  

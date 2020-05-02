@@ -1,0 +1,3065 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg id='root' width='100%' viewBox='-450 -450 1360 900' zoomAndPan='magnify' contentScriptType='text/ecmascript' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<!--
+	Maze Wars SVG, by Chris W. Johnson, is a web-based, first-person shooter ultimately inspired by the famous game 
+	"Maze War" created by Steve Colley, Howard Palmer and Greg Thompson. 
+	
+	Copyright (C) 2008-2010 Chris W. Johnson. <http://chriswjohnson.blogspot.com/>
+	
+	Maze Wars SVG is free software: you can redistribute it and/or modify it under the terms of the GNU General Public 
+	License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any 
+	later version.
+	
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
+	details.
+	
+	You should have received a copy of the GNU General Public License along with this program. If not, see 
+	<http://www.gnu.org/licenses/>.
+-->
+
+<title>Maze Wars SVG, version 1.0b3, by Chris W. Johnson</title>
+<desc>Maze Wars SVG, version 1.0b3 [132] of 17-Jan-2010, Copyright 2008-2009 Chris W. Johnson. &lt;http://chriswjohnson.blogspot.com/&gt;</desc>
+
+<defs>
+	<style type='text/css'><![CDATA[
+		
+		svg {
+			background-color: #404040;
+		}
+		
+		*.eyeball {
+		  	      stroke: white;
+			stroke-width: 1px;
+		}
+	
+		#eyeball-shadow {
+			 stroke: none;
+			   fill: black;
+			opacity: 0.3;
+		}
+		
+		*.eye-white {
+			fill: ivory;
+		}
+		
+		*.eyeball-tail {
+			      stroke: white;
+			stroke-width: 2px;
+			        fill: none;
+		}
+		
+	/*	This fill should be set programmatically at runtime, and differently for each player.
+		Setting the iris' fill color by altering the element's ".style.fill" property does not
+		work in Firefox as of 3.5b6. A Bugzilla bug report has been filed; it is bug 536779.
+		Altering the element's ".style.fill" property DOES WORK in Safari and Chrome.
+		
+		That Firefox bug is confirmed in versions 3.6b5, 3.5.6, 3.5.4, 3.0.11, 2.0.0.14.
+		(Furthermore, Firefox version 2.0.0.14 fails to draw player names and scores.)
+		
+		*.iris {
+			fill: #7a7ade;
+		}
+	*/	
+		*.iris-overlay {
+			opacity: 0.45;
+		}
+
+		*.pupil {
+			fill: black;	
+		}
+	
+		*.wall, #left-wall, #right-wall {
+			      stroke: black;
+			stroke-width: 1px;
+		}
+		
+		#teleport-floor-disc {
+			stroke-width: 6px;
+			      stroke: blue;
+			        fill: none;
+			     opacity: 0.9;
+		}
+	
+		*.floor {
+			      stroke: black;
+			stroke-width: 2px;
+		}
+		
+		*.sky {
+			      stroke: black;
+			stroke-width: 2px;
+			        fill: black;
+		}
+	
+		*.section-bbox {
+			stroke-width: 2px;
+			      stroke: black;
+			        fill: none;
+		}
+		
+		#maze-map {
+			background-color: silver;	
+		}
+	
+		#maze-map rect {
+			          fill: black;
+			        stroke: black;
+			  stroke-width: 0.2px;
+			stroke-linecap: butt;
+		}
+		
+		#maze-map *.teleport {
+			image-rendering: optimizeQuality;			
+			           fill: none;
+			         stroke: blue;
+			   stroke-width: 0.5px;
+		}
+	
+		#marker {
+			image-rendering: optimizeQuality;			
+		}
+	
+		#marker path {
+			          fill: red;
+			        stroke: red;
+			  stroke-width: 1px;
+		}
+		
+		#players-list {
+			font-family: Arial, Verdana, "Trebuchet MS", Helvetica, sans-serif;
+		}
+	
+		*.inset-border-shadow {
+			      stroke: black;
+			stroke-width: 1px;
+			        fill: #202020;
+		}
+	
+		*.inset-border-light {
+			      stroke: black;
+			stroke-width: 1px;
+			        fill: #808080;
+		}
+	
+		*.inset-background {
+			        fill: silver;
+			      stroke: black;
+			stroke-width: 1px;
+		}
+		
+		*.killed {
+			  fill: white;
+			stroke: none;
+			 width: 100%;
+			height: 100%;
+		}
+		
+		#wait-counter-group rect {
+			fill: #404040;
+		}
+	
+		#wait-counter-group *.digit path {
+			   fill: #e20000;
+			display: none;
+		}
+	
+	]]></style>
+</defs>
+
+<defs>
+
+<!-- Maze 3D view clip. -->
+
+	<rect x="-400" y="-400" height="800" width="800" class="section-bbox" id='maze-view-bbox'/>	<!-- Maze 3D view bounding box. -->
+	<clipPath id='maze-view-clip'><use xlink:href="#maze-view-bbox"/></clipPath>
+
+<!-- Common eyeball elements. -->
+
+<!-- This eyeball shadow definition with a fill gradient would look great as the eyeball shadow, except that, even with
+	 its opacity set to make it arbitrarily transparent, it does not blend with arbitrary points on the floor gradient.
+	 To fix that, we need the blending to be controlled by a filter set to combine the shadow and the floor in blend 
+	 mode "darken". Unfortunately some key browsers do not support filters.
+
+	<radialGradient id="eyeball-shadow-gradient" gradientUnits="userSpaceOnUse" r='250' cx='0' cy='0' fx="0" fy="0" spreadMethod='reflect'>
+		<stop offset="0%"   stop-color="#000008"/>
+		<stop offset="100%" stop-color="#808088"/>
+	</radialGradient>
+	
+	<circle id="eyeball-shadow" r='250' cx='0' cy='0' fill="url(#eyeball-shadow-gradient)" transform="translate(0 420) scale(1 0.225)"/>
+-->	
+	
+	<radialGradient id="eyeball-gradient" gradientUnits='userSpaceOnUse' r='300' cx='0' cy='0' fx='0' fy='0' spreadMethod='reflect'>
+		<stop offset="0%"   stop-color="#303030"/>
+		<stop offset="100%" stop-color="black"  />
+	</radialGradient>
+	
+	<radialGradient id="eye-white-gradient" gradientUnits='userSpaceOnUse' r='300' cx='0' cy='0' fx='0' fy='0' spreadMethod='reflect'>
+		<stop offset="0%"   stop-color="white"/>
+		<stop offset="40%"  stop-color="white"/>
+		<stop offset="100%" stop-color="gray" />
+	</radialGradient>
+	
+	<radialGradient id="iris-gradient" gradientUnits='userSpaceOnUse' r='129' cx='0' cy='0' fx='0' fy='0' spreadMethod='reflect'>
+		<stop offset="0%"   stop-color="white"  />
+		<stop offset="50%"  stop-color="#A0A0A0"/>
+		<stop offset="100%" stop-color="black"  />
+	</radialGradient>
+	
+	<ellipse id="eyeball-shadow" rx='250' ry='56.25' cx='0' cy='420' fill="url(#eyeball-shadow-gradient)"/>
+
+<!-- Eyeball seen from the front. -->
+	
+	<path id='eye-white-front' class='eye-white' d='M-299,0A298,107 0 0,1 299,0A298,107 0 0,1 -299,0z'/>
+	<clipPath id='eye-white-front-clip'><use xlink:href='#eye-white-front'/></clipPath>
+	
+	<g id='eye-front'>
+		<use xlink:href='#eyeball-shadow'/>
+		<circle class="eyeball" cx='0' cy='0' r='300' fill="url(#eyeball-gradient)"/>
+		<g clip-path='url(#eye-white-front-clip)'>
+			<circle class="eye-white-front-circle" cx="0" cy="0" r="300" fill="url(#eye-white-gradient)"/>
+			<circle class='iris' cx='0' cy='0' r='129' id='eye-front-iris'/>
+			<circle class='iris-overlay' cx='0' cy='0' r='129' fill='url(#iris-gradient)'/>
+			<circle class='pupil' cx='0' cy='0' r='34'/>
+		</g>
+	</g>
+	
+<!-- Eyeball seen going to the right. -->
+	
+	<path id='eye-white-right' class='eye-white' d='M0,0A298,107 0 0,1 274,-107A298,298 0 0,1 274,107A298,107 0 0,1 0,0z'/>
+	<clipPath id="eye-white-right-clip"><use xlink:href="#eye-white-right"/></clipPath>
+	
+	<g id="eye-right">
+		<use xlink:href='#eyeball-shadow'/>
+		<path class="eyeball" d="M0,0A298,107 0 0,1 280,-107A300,300 0 1,0 280,107A298,107 0 0,1 0,0z" fill="url(#eyeball-gradient)"/>
+		<g clip-path="url(#eye-white-right-clip)">
+			<circle class="eye-white-front-circle" cx="0" cy="0" r="300" fill="url(#eye-white-gradient)"/>
+			<path class="iris" d='M274,-129A26,129 0 0,0 274,129A26,129 0, 0,0 274,-129z' id='eye-right-iris'/>
+			<path class="pupil" d="M300,-34A13,34 0 0,0 300,34A13,34 0 0,0 300,-34z"/>
+		</g>
+	</g>
+
+<!-- Eyeball seen going to the left. I'd've just used the "right" image and rotated it 180 degrees, but Firefox 3 can't handle that(!). -->
+	
+	<path id='eye-white-left' class='eye-white' d='M0,0A298,107 0 0,0 -274,-107A298,298 0 0,0 -274,107A298,107 0 0,0 0,0z'/>
+	<clipPath id="eye-white-left-clip"><use xlink:href="#eye-white-left"/></clipPath>
+	
+	<g id="eye-left">
+		<use xlink:href='#eyeball-shadow'/>
+		<path class="eyeball" d="M0,0A298,107 0 0,0 -280,-107A300,300 0 1,1 -280,107A298,107 0 0,0 0,0z" fill="url(#eyeball-gradient)"/>
+		<g clip-path="url(#eye-white-left-clip)">
+			<circle class="eye-white-front-circle" cx="0" cy="0" r="300" fill="url(#eye-white-gradient)"/>
+			<path class="iris" d='M-274,-129A26,129 0 0,0 -274,129A26,129 0, 0,0 -274,-129z' id='eye-left-iris'/>
+			<path class="pupil" d="M-300,-34A13,34 0 0,0 -300,34A13,34 0 0,0 -300,-34z"/>
+		</g>
+	</g>
+	
+<!-- Eyeball seen from the back. -->
+	
+	<g id="eye-back">
+		<use xlink:href='#eyeball-shadow'/>
+		<circle class="eyeball" cx='0' cy='0' r='300' fill="url(#eyeball-gradient)"/>
+		<path class='eyeball-tail' d="M40,0q0,25 75,40c85,10 80,95 -10,85c-40,-5 -125,-35 -145,-17q20,15 35,5c-10,25 -35,0 -90,30c20,-15 5,-90 50,-80c-10,5 -10,12 -5,25c50,-15 100,0 160,8c30,0 30,-15 20,-20c-15,-10 -140,-10 -155,-40"/>
+	</g>
+
+<!-- The one and only floor gradient. -->
+	
+	<linearGradient id='floor-gradient' x1='0' y1='0' x2='0' y2='100%' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#000008'/>
+		<stop offset='100%' stop-color='#C0C0C8'/>		
+	</linearGradient>
+	
+<!-- The center wall. -->
+	
+	<g id="center-wall" class='wall'>
+		<rect x='-356' y="-356" width="712" height="712"/>
+	</g>
+
+<!-- Left side parts. -->
+
+	<g id="left-wall" class="wall">
+		<path d="M-494.444,-494.444L-356,-356L-356,356L-494.444,494.444Z"/>
+	</g>
+
+	<g id="left-corridor" class="wall">
+		<rect x='-1068' y='-356' width="712" height="712"/>
+	</g>
+
+<!-- Gradients for each of the 17 possible left wall segments. -->
+	
+	<linearGradient id='left-wall-gradient' x1='100%' y1='0' x2='0' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#000000'/>
+		<stop offset='100%' stop-color='#FFFFFF'/>		
+	</linearGradient>
+	
+	<linearGradient id='left-wall-gradient-0' x1='100%' y1='0' x2='0' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#D0D0D0'/>
+		<stop offset='100%' stop-color='#FFFFFF'/>		
+	</linearGradient>
+	
+	<linearGradient id='left-wall-gradient-1' x1='100%' y1='0' x2='0' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#969696'/>
+		<stop offset='100%' stop-color='#D0D0D0'/>		
+	</linearGradient>
+			
+	<linearGradient id='left-wall-gradient-2' x1='100%' y1='0' x2='0' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#6B6B6B'/>
+		<stop offset='100%' stop-color='#969696'/>		
+	</linearGradient>
+			
+	<linearGradient id='left-wall-gradient-3' x1='100%' y1='0' x2='0' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#4E4E4E'/>
+		<stop offset='100%' stop-color='#6B6B6B'/>		
+	</linearGradient>
+					
+	<linearGradient id='left-wall-gradient-4' x1='100%' y1='0' x2='0' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#383838'/>
+		<stop offset='100%' stop-color='#4E4E4E'/>		
+	</linearGradient>
+						
+	<linearGradient id='left-wall-gradient-5' x1='100%' y1='0' x2='0' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#282828'/>
+		<stop offset='100%' stop-color='#383838'/>		
+	</linearGradient>
+						
+	<linearGradient id='left-wall-gradient-6' x1='100%' y1='0' x2='0' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#1D1D1D'/>
+		<stop offset='100%' stop-color='#282828'/>		
+	</linearGradient>
+							
+	<linearGradient id='left-wall-gradient-7' x1='100%' y1='0' x2='0' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#151515'/>
+		<stop offset='100%' stop-color='#1D1D1D'/>		
+	</linearGradient>
+							
+	<linearGradient id='left-wall-gradient-8' x1='100%' y1='0' x2='0' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#0F0F0F'/>
+		<stop offset='100%' stop-color='#151515'/>		
+	</linearGradient>
+								
+	<linearGradient id='left-wall-gradient-9' x1='100%' y1='0' x2='0' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#0B0B0B'/>
+		<stop offset='100%' stop-color='#0F0F0F'/>		
+	</linearGradient>
+									
+	<linearGradient id='left-wall-gradient-A' x1='100%' y1='0' x2='0' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#080808'/>
+		<stop offset='100%' stop-color='#0B0B0B'/>		
+	</linearGradient>
+									
+	<linearGradient id='left-wall-gradient-B' x1='100%' y1='0' x2='0' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#060606'/>
+		<stop offset='100%' stop-color='#080808'/>		
+	</linearGradient>
+										
+	<linearGradient id='left-wall-gradient-C' x1='100%' y1='0' x2='0' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#040404'/>
+		<stop offset='100%' stop-color='#060606'/>		
+	</linearGradient>
+							
+	<linearGradient id='left-wall-gradient-D' x1='100%' y1='0' x2='0' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#030303'/>
+		<stop offset='100%' stop-color='#040404'/>		
+	</linearGradient>
+									
+	<linearGradient id='left-wall-gradient-E' x1='100%' y1='0' x2='0' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#020202'/>
+		<stop offset='100%' stop-color='#030303'/>		
+	</linearGradient>
+									
+	<linearGradient id='left-wall-gradient-F' x1='100%' y1='0' x2='0' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#010101'/>
+		<stop offset='100%' stop-color='#020202'/>		
+	</linearGradient>
+										
+	<linearGradient id='left-wall-gradient-G' x1='100%' y1='0' x2='0' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#000000'/>
+		<stop offset='100%' stop-color='#010101'/>		
+	</linearGradient>
+
+<!-- Right side parts. -->
+
+	<g id="right-wall" class="wall">
+		<path d="M494.444,-494.444L356,-356L356,356L494.444,494.444Z"/>
+	</g>
+
+	<g id="right-corridor" class="wall">
+		<rect x='356' y='-356' width="712" height="712"/>
+	</g>
+
+<!-- Gradients for each of the 17 possible right wall segments. -->
+	
+	<linearGradient id='right-wall-gradient' x1='0' y1='0' x2='100%' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#000000'/>
+		<stop offset='100%' stop-color='#FFFFFF'/>		
+	</linearGradient>
+	
+	<linearGradient id='right-wall-gradient-0' x1='0' y1='0' x2='100%' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#D0D0D0'/>
+		<stop offset='100%' stop-color='#FFFFFF'/>		
+	</linearGradient>
+		
+	<linearGradient id='right-wall-gradient-1' x1='0' y1='0' x2='100%' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#969696'/>
+		<stop offset='100%' stop-color='#D0D0D0'/>		
+	</linearGradient>
+				
+	<linearGradient id='right-wall-gradient-2' x1='0' y1='0' x2='100%' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#6B6B6B'/>
+		<stop offset='100%' stop-color='#969696'/>		
+	</linearGradient>
+				
+	<linearGradient id='right-wall-gradient-3' x1='0' y1='0' x2='100%' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#4E4E4E'/>
+		<stop offset='100%' stop-color='#6B6B6B'/>		
+	</linearGradient>
+						
+	<linearGradient id='right-wall-gradient-4' x1='0' y1='0' x2='100%' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#383838'/>
+		<stop offset='100%' stop-color='#4E4E4E'/>		
+	</linearGradient>
+							
+	<linearGradient id='right-wall-gradient-5' x1='0' y1='0' x2='100%' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#282828'/>
+		<stop offset='100%' stop-color='#383838'/>		
+	</linearGradient>
+							
+	<linearGradient id='right-wall-gradient-6' x1='0' y1='0' x2='100%' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#1D1D1D'/>
+		<stop offset='100%' stop-color='#282828'/>		
+	</linearGradient>
+								
+	<linearGradient id='right-wall-gradient-7' x1='0' y1='0' x2='100%' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#151515'/>
+		<stop offset='100%' stop-color='#1D1D1D'/>		
+	</linearGradient>
+								
+	<linearGradient id='right-wall-gradient-8' x1='0' y1='0' x2='100%' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#0F0F0F'/>
+		<stop offset='100%' stop-color='#151515'/>		
+	</linearGradient>
+										
+	<linearGradient id='right-wall-gradient-9' x1='0' y1='0' x2='100%' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#0B0B0B'/>
+		<stop offset='100%' stop-color='#0F0F0F'/>		
+	</linearGradient>
+										
+	<linearGradient id='right-wall-gradient-A' x1='0' y1='0' x2='100%' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#080808'/>
+		<stop offset='100%' stop-color='#0B0B0B'/>		
+	</linearGradient>
+											
+	<linearGradient id='right-wall-gradient-B' x1='0' y1='0' x2='100%' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#060606'/>
+		<stop offset='100%' stop-color='#080808'/>		
+	</linearGradient>
+												
+	<linearGradient id='right-wall-gradient-C' x1='0' y1='0' x2='100%' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#080808'/>
+		<stop offset='100%' stop-color='#040404'/>		
+	</linearGradient>
+														
+	<linearGradient id='right-wall-gradient-D' x1='0' y1='0' x2='100%' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#040404'/>
+		<stop offset='100%' stop-color='#030303'/>		
+	</linearGradient>
+														
+	<linearGradient id='right-wall-gradient-E' x1='0' y1='0' x2='100%' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#030303'/>
+		<stop offset='100%' stop-color='#020202'/>		
+	</linearGradient>
+															
+	<linearGradient id='right-wall-gradient-F' x1='0' y1='0' x2='100%' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#020202'/>
+		<stop offset='100%' stop-color='#010101'/>		
+	</linearGradient>
+																
+	<linearGradient id='right-wall-gradient-G' x1='0' y1='0' x2='100%' y2='0' spreadMethod='reflect'>
+		<stop offset='0%'   stop-color='#010101'/>
+		<stop offset='100%' stop-color='#000000'/>		
+	</linearGradient>
+
+<!-- Teleport disc for the floor of teleport cells. -->
+	
+	<g id="teleport-floor-disc">
+		<ellipse rx='200' ry='45' cx='0' cy='420'/>
+	</g>
+
+<!-- Maze map bounding box. -->
+	
+	<rect x='460' y='-400' height="570" width="570" class="section-bbox" id="maze-map-bbox"/>
+	
+<!-- Location and Direction Marker in Maze map. -->
+	
+	<g id="marker">
+		<path d="M-2,0l2,-2l2,2h-1v2h-2v-2z">
+			<animateTransform attributeName='transform' attributeType='XML' type='scale' values='0.85;1.25;0.85' ketTimes='0;0.5;1' dur='2s' additive='sum' repeatCount='indefinite'/>
+		</path>
+	</g>
+
+</defs>
+
+
+<g id="maze-view-group">
+
+	<g id="maze-view" clip-path='url(#maze-view-clip)'>
+		
+		<rect x="-400" y="0"    width='800' height="400" fill='url(#floor-gradient)' id="floor"/> <!-- Floor. -->
+		<rect x="-400" y="-400" width='800' height="400" fill='black'                id="sky"  /> <!-- Sky.   -->
+		
+		<g id="left-corridor-G"><use xlink:href="#left-corridor" transform="scale(0.0052157881)" fill="#000000"/></g>
+		<g id="left-corridor-F"><use xlink:href="#left-corridor" transform="scale(0.0072441502)" fill="#010101"/></g>
+		<g id="left-corridor-E"><use xlink:href="#left-corridor" transform="scale(0.0100613197)" fill="#020202"/></g>
+		<g id="left-corridor-D"><use xlink:href="#left-corridor" transform="scale(0.0139740552)" fill="#030303"/></g>
+		<g id="left-corridor-C"><use xlink:href="#left-corridor" transform="scale(0.0194084099)" fill="#040404"/></g>
+		<g id="left-corridor-B"><use xlink:href="#left-corridor" transform="scale(0.0269561249)" fill="#060606"/></g>
+		<g id="left-corridor-A"><use xlink:href="#left-corridor" transform="scale(0.0374390624)" fill="#080808"/></g>
+		<g id="left-corridor-9"><use xlink:href="#left-corridor" transform="scale(0.0519986978)" fill="#0B0B0B"/></g>
+		<g id="left-corridor-8"><use xlink:href="#left-corridor" transform="scale(0.0722204136)" fill="#0F0F0F"/></g>
+		<g id="left-corridor-7"><use xlink:href="#left-corridor" transform="scale(0.1003061300)" fill="#151515"/></g>
+		<g id="left-corridor-6"><use xlink:href="#left-corridor" transform="scale(0.1393140695)" fill="#1D1D1D"/></g>
+		<g id="left-corridor-5"><use xlink:href="#left-corridor" transform="scale(0.1934917632)" fill="#282828"/></g>
+		<g id="left-corridor-4"><use xlink:href="#left-corridor" transform="scale(0.26873856  )" fill="#383838"/></g>
+		<g id="left-corridor-3"><use xlink:href="#left-corridor" transform="scale(0.373248    )" fill="#4E4E4E"/></g>
+		<g id="left-corridor-2"><use xlink:href="#left-corridor" transform="scale(0.5184      )" fill="#6B6B6B"/></g>
+		<g id="left-corridor-1"><use xlink:href="#left-corridor" transform="scale(0.72        )" fill="#969696"/></g>
+		<g id="left-corridor-0"><use xlink:href="#left-corridor"                                 fill="#D0D0D0"/></g>
+		
+		<g id="left-wall-G"><use xlink:href="#left-wall" transform='scale(0.0052157881)' fill="url(#left-wall-gradient-G)"/></g>
+		<g id="left-wall-F"><use xlink:href="#left-wall" transform='scale(0.0072441502)' fill="url(#left-wall-gradient-F)"/></g>
+		<g id="left-wall-E"><use xlink:href="#left-wall" transform='scale(0.0100613197)' fill="url(#left-wall-gradient-E)"/></g>
+		<g id="left-wall-D"><use xlink:href="#left-wall" transform='scale(0.0139740552)' fill="url(#left-wall-gradient-D)"/></g>
+		<g id="left-wall-C"><use xlink:href="#left-wall" transform='scale(0.0194084099)' fill="url(#left-wall-gradient-C)"/></g>
+		<g id="left-wall-B"><use xlink:href="#left-wall" transform='scale(0.0269561249)' fill="url(#left-wall-gradient-B)"/></g>
+		<g id="left-wall-A"><use xlink:href="#left-wall" transform='scale(0.0374390624)' fill="url(#left-wall-gradient-A)"/></g>
+		<g id="left-wall-9"><use xlink:href="#left-wall" transform='scale(0.0519986978)' fill="url(#left-wall-gradient-9)"/></g>
+		<g id="left-wall-8"><use xlink:href="#left-wall" transform='scale(0.0722204136)' fill="url(#left-wall-gradient-8)"/></g>
+		<g id="left-wall-7"><use xlink:href="#left-wall" transform='scale(0.1003061300)' fill="url(#left-wall-gradient-7)"/></g>
+		<g id="left-wall-6"><use xlink:href="#left-wall" transform='scale(0.1393140695)' fill="url(#left-wall-gradient-6)"/></g>
+		<g id="left-wall-5"><use xlink:href="#left-wall" transform='scale(0.1934917632)' fill="url(#left-wall-gradient-5)"/></g>
+		<g id="left-wall-4"><use xlink:href="#left-wall" transform='scale(0.26873856  )' fill="url(#left-wall-gradient-4)"/></g>
+		<g id="left-wall-3"><use xlink:href="#left-wall" transform='scale(0.373248    )' fill="url(#left-wall-gradient-3)"/></g>
+		<g id="left-wall-2"><use xlink:href="#left-wall" transform='scale(0.5184      )' fill="url(#left-wall-gradient-2)"/></g>
+		<g id="left-wall-1"><use xlink:href="#left-wall" transform='scale(0.72        )' fill="url(#left-wall-gradient-1)"/></g>
+		<g id="left-wall-0"><use xlink:href="#left-wall"                                 fill="url(#left-wall-gradient-0)"/></g>
+		
+		<g id="right-corridor-G"><use xlink:href="#right-corridor" transform="scale(0.0052157881)" fill="#000000"/></g>
+		<g id="right-corridor-F"><use xlink:href="#right-corridor" transform="scale(0.0072441502)" fill="#010101"/></g>
+		<g id="right-corridor-E"><use xlink:href="#right-corridor" transform="scale(0.0100613197)" fill="#020202"/></g>
+		<g id="right-corridor-D"><use xlink:href="#right-corridor" transform="scale(0.0139740552)" fill="#030303"/></g>
+		<g id="right-corridor-C"><use xlink:href="#right-corridor" transform="scale(0.0194084099)" fill="#040404"/></g>
+		<g id="right-corridor-B"><use xlink:href="#right-corridor" transform="scale(0.0269561249)" fill="#060606"/></g>
+		<g id="right-corridor-A"><use xlink:href="#right-corridor" transform="scale(0.0374390624)" fill="#080808"/></g>
+		<g id="right-corridor-9"><use xlink:href="#right-corridor" transform="scale(0.0519986978)" fill="#0B0B0B"/></g>
+		<g id="right-corridor-8"><use xlink:href="#right-corridor" transform="scale(0.0722204136)" fill="#0F0F0F"/></g>
+		<g id="right-corridor-7"><use xlink:href="#right-corridor" transform="scale(0.1003061300)" fill="#151515"/></g>
+		<g id="right-corridor-6"><use xlink:href="#right-corridor" transform="scale(0.1393140695)" fill="#1D1D1D"/></g>
+		<g id="right-corridor-5"><use xlink:href="#right-corridor" transform="scale(0.1934917632)" fill="#282828"/></g>
+		<g id="right-corridor-4"><use xlink:href="#right-corridor" transform="scale(0.26873856  )" fill="#383838"/></g>
+		<g id="right-corridor-3"><use xlink:href="#right-corridor" transform="scale(0.373248    )" fill="#4E4E4E"/></g>
+		<g id="right-corridor-2"><use xlink:href="#right-corridor" transform="scale(0.5184      )" fill="#6B6B6B"/></g>
+		<g id="right-corridor-1"><use xlink:href="#right-corridor" transform="scale(0.72        )" fill="#969696"/></g>
+		<g id="right-corridor-0"><use xlink:href="#right-corridor"                                 fill="#D0D0D0"/></g>
+		
+		<g id="right-wall-G"><use xlink:href="#right-wall" transform='scale(0.0052157881)' fill="url(#right-wall-gradient-G)"/></g>
+		<g id="right-wall-F"><use xlink:href="#right-wall" transform='scale(0.0072441502)' fill="url(#right-wall-gradient-F)"/></g>
+		<g id="right-wall-E"><use xlink:href="#right-wall" transform='scale(0.0100613197)' fill="url(#right-wall-gradient-E)"/></g>
+		<g id="right-wall-D"><use xlink:href="#right-wall" transform='scale(0.0139740552)' fill="url(#right-wall-gradient-D)"/></g>
+		<g id="right-wall-C"><use xlink:href="#right-wall" transform='scale(0.0194084099)' fill="url(#right-wall-gradient-C)"/></g>
+		<g id="right-wall-B"><use xlink:href="#right-wall" transform='scale(0.0269561249)' fill="url(#right-wall-gradient-B)"/></g>
+		<g id="right-wall-A"><use xlink:href="#right-wall" transform='scale(0.0374390624)' fill="url(#right-wall-gradient-A)"/></g>
+		<g id="right-wall-9"><use xlink:href="#right-wall" transform='scale(0.0519986978)' fill="url(#right-wall-gradient-9)"/></g>
+		<g id="right-wall-8"><use xlink:href="#right-wall" transform='scale(0.0722204136)' fill="url(#right-wall-gradient-8)"/></g>
+		<g id="right-wall-7"><use xlink:href="#right-wall" transform='scale(0.1003061300)' fill="url(#right-wall-gradient-7)"/></g>
+		<g id="right-wall-6"><use xlink:href="#right-wall" transform='scale(0.1393140695)' fill="url(#right-wall-gradient-6)"/></g>
+		<g id="right-wall-5"><use xlink:href="#right-wall" transform='scale(0.1934917632)' fill="url(#right-wall-gradient-5)"/></g>
+		<g id="right-wall-4"><use xlink:href="#right-wall" transform='scale(0.26873856  )' fill="url(#right-wall-gradient-4)"/></g>
+		<g id="right-wall-3"><use xlink:href="#right-wall" transform='scale(0.373248    )' fill="url(#right-wall-gradient-3)"/></g>
+		<g id="right-wall-2"><use xlink:href="#right-wall" transform='scale(0.5184      )' fill="url(#right-wall-gradient-2)"/></g>
+		<g id="right-wall-1"><use xlink:href="#right-wall" transform='scale(0.72        )' fill="url(#right-wall-gradient-1)"/></g>
+		<g id="right-wall-0"><use xlink:href="#right-wall"                                 fill="url(#right-wall-gradient-0)"/></g>
+		
+		<g id="center-wall-G"  ><use xlink:href="#center-wall"         transform="scale(0.0052157881)" fill="#000000"/></g>
+		<g id="teleport-disc-G"><use xlink:href="#teleport-floor-disc" transform="scale(0.0052157881)" fill="#000000"/></g>
+		<g id="center-wall-F"  ><use xlink:href="#center-wall"         transform="scale(0.0072441502)" fill="#010101"/></g>
+		<g id="teleport-disc-F"><use xlink:href="#teleport-floor-disc" transform="scale(0.0072441502)" fill="#010101"/></g>
+		<g id="center-wall-E"  ><use xlink:href="#center-wall"         transform="scale(0.0100613197)" fill="#020202"/></g>
+		<g id="teleport-disc-E"><use xlink:href="#teleport-floor-disc" transform="scale(0.0100613197)" fill="#020202"/></g>
+		<g id="center-wall-D"  ><use xlink:href="#center-wall"         transform="scale(0.0139740552)" fill="#030303"/></g>
+		<g id="teleport-disc-D"><use xlink:href="#teleport-floor-disc" transform="scale(0.0139740552)" fill="#030303"/></g>
+		<g id="center-wall-C"  ><use xlink:href="#center-wall"         transform="scale(0.0194084099)" fill="#040404"/></g>
+		<g id="teleport-disc-C"><use xlink:href="#teleport-floor-disc" transform="scale(0.0194084099)" fill="#040404"/></g>
+		<g id="center-wall-B"  ><use xlink:href="#center-wall"         transform="scale(0.0269561249)" fill="#060606"/></g>
+		<g id="teleport-disc-B"><use xlink:href="#teleport-floor-disc" transform="scale(0.0269561249)" fill="#060606"/></g>
+		<g id="center-wall-A"  ><use xlink:href="#center-wall"         transform="scale(0.0374390624)" fill="#080808"/></g>
+		<g id="teleport-disc-A"><use xlink:href="#teleport-floor-disc" transform="scale(0.0374390624)" fill="#080808"/></g>
+		<g id="center-wall-9"  ><use xlink:href="#center-wall"         transform="scale(0.0519986978)" fill="#0B0B0B"/></g>
+		<g id="teleport-disc-9"><use xlink:href="#teleport-floor-disc" transform="scale(0.0519986978)" fill="#0B0B0B"/></g>
+		<g id="center-wall-8"  ><use xlink:href="#center-wall"         transform="scale(0.0722204136)" fill="#0F0F0F"/></g>
+		<g id="teleport-disc-8"><use xlink:href="#teleport-floor-disc" transform="scale(0.0722204136)" fill="#0F0F0F"/></g>
+		<g id="center-wall-7"  ><use xlink:href="#center-wall"         transform="scale(0.1003061300)" fill="#151515"/></g>
+		<g id="teleport-disc-7"><use xlink:href="#teleport-floor-disc" transform="scale(0.1003061300)" fill="#151515"/></g>
+		<g id="center-wall-6"  ><use xlink:href="#center-wall"         transform="scale(0.1393140695)" fill="#1D1D1D"/></g>
+		<g id="teleport-disc-6"><use xlink:href="#teleport-floor-disc" transform="scale(0.1393140695)" fill="#1D1D1D"/></g>
+		<g id="center-wall-5"  ><use xlink:href="#center-wall"         transform="scale(0.1934917632)" fill="#282828"/></g>
+		<g id="teleport-disc-5"><use xlink:href="#teleport-floor-disc" transform="scale(0.1934917632)" fill="#282828"/></g>
+		<g id="center-wall-4"  ><use xlink:href="#center-wall"         transform="scale(0.26873856  )" fill="#383838"/></g>
+		<g id="teleport-disc-4"><use xlink:href="#teleport-floor-disc" transform="scale(0.26873856  )" fill="#383838"/></g>
+		<g id="center-wall-3"  ><use xlink:href="#center-wall"         transform="scale(0.373248    )" fill="#4E4E4E"/></g>
+		<g id="teleport-disc-3"><use xlink:href="#teleport-floor-disc" transform="scale(0.373248    )" fill="#4E4E4E"/></g>
+		<g id="center-wall-2"  ><use xlink:href="#center-wall"         transform="scale(0.5184      )" fill="#6B6B6B"/></g>
+		<g id="teleport-disc-2"><use xlink:href="#teleport-floor-disc" transform="scale(0.5184      )" fill="#6B6B6B"/></g>
+		<g id="center-wall-1"  ><use xlink:href="#center-wall"         transform="scale(0.72        )" fill="#969696"/></g>
+		<g id="teleport-disc-1"><use xlink:href="#teleport-floor-disc" transform="scale(0.72        )" fill="#969696"/></g>
+		<g id="center-wall-0"  ><use xlink:href="#center-wall"                                         fill="#D0D0D0"/></g>
+		<g id="teleport-disc-0"><use xlink:href="#teleport-floor-disc"                                 fill="#D0D0D0"/></g>
+	
+		<g id="line-of-sight"></g>
+	
+	</g>
+</g>
+
+<g id="maze-map-group">
+	<g id="maze-map"></g>
+</g>
+
+<g id="players-group">
+	<g id="players-list"></g>
+</g>
+
+<g id="wait-counter-group">
+	
+	<rect x='-450' y="-450" width="1360" height="900"/>	<!-- Keep in synch with viewBBox attribute of the "svg" element. -->
+	
+	<g class='digit' id='digit-1' transform='translate(-160,-400) skewX(-5)'>
+		<path d="M216,208 L360,208 L396.045,172 L180,172 Z"/>
+		<path d="M212,355.5 L212.045,211.5 L176.045,175.5 L176.045,375.5 L192.414,375.5"/>
+		<path d="M364.09,355.125 L364.045,211.125 L400.045,175.125 L400.045,375.125 L383.675,375.125"/>
+		<path d="M214,360 L362.545,360 L380.045,378 L362.545,396 L214,396 L195.5,378 Z"/>
+		<path d="M212,401.25 L212.045,545.25 L176.045,581.25 L176.045,381.25 L192.414,381.25"/>
+		<path d="M364.09,400.875 L364.045,544.875 L400.045,580.875 L400.045,380.875 L383.675,380.875"/>
+		<path d="M216,549 L360,549 L396.045,585 L180,585 Z"/>
+	</g>
+
+	<g class='digit' id='digit-2' transform='translate(120,-400) skewX(-5)'>
+		<path d="M216,208 L360,208 L396.045,172 L180,172 Z"/>
+		<path d="M212,355.5 L212.045,211.5 L176.045,175.5 L176.045,375.5 L192.414,375.5"/>
+		<path d="M364.09,355.125 L364.045,211.125 L400.045,175.125 L400.045,375.125 L383.675,375.125"/>
+		<path d="M214,360 L362.545,360 L380.045,378 L362.545,396 L214,396 L195.5,378 Z"/>
+		<path d="M212,401.25 L212.045,545.25 L176.045,581.25 L176.045,381.25 L192.414,381.25"/>
+		<path d="M364.09,400.875 L364.045,544.875 L400.045,580.875 L400.045,380.875 L383.675,380.875"/>
+		<path d="M216,549 L360,549 L396.045,585 L180,585 Z"/>
+	</g>
+</g>
+
+<script type='text/ecmascript'><![CDATA[
+
+	
+const kDirectionUp    = new Direction("north", 0, -1,  0,   0);	//	Name, Standard Index, Y Offset, X Offset.
+const kDirectionRight = new Direction("east",  1,  0,  1,  90);	//	Name, Standard Index, Y Offset, X Offset.
+const kDirectionDown  = new Direction("south", 2,  1 , 0, 180);	//	Name, Standard Index, Y Offset, X Offset.
+const kDirectionLeft  = new Direction("west",  3,  0, -1, -90);	//	Name, Standard Index, Y Offset, X Offset.
+
+
+function MazeWars(GameURL, MyPlayerID, MyPlayerName) {
+	
+	const kDirections = [4];
+	
+	kDirections[kDirectionUp.StandardIndex   ] = kDirectionUp;
+	kDirections[kDirectionRight.StandardIndex] = kDirectionRight;
+	kDirections[kDirectionDown.StandardIndex ] = kDirectionDown;
+	kDirections[kDirectionLeft.StandardIndex ] = kDirectionLeft;
+	
+	const kPlayerOrientationIDTable = [	//	Note: The order of the following arrays must be consistent with the StandardIndex of the relevant directions.
+		[	//	Note: The order of the following elements must be consistent with the StandardIndex of the relevant directions.
+			"eye-back",	//	We're facing north; they're facing north.
+			"eye-right",//	We're facing north; they're facing east.
+			"eye-front",//	We're facing north; they're facing south.
+			"eye-left"	//	We're facing north; they're facing west.
+		],	
+		[	//	Note: The order of the following elements must be consistent with the StandardIndex of the relevant directions.
+			"eye-left",	//	We're facing east; they're facing north.
+			"eye-back",	//	We're facing east; they're facing east.
+			"eye-right",//	We're facing east; they're facing south.
+			"eye-front"	//	We're facing east; they're facing west.
+		],	
+		[	//	Note: The order of the following elements must be consistent with the StandardIndex of the relevant directions.
+			"eye-front",//	We're facing south; they're facing north.
+			"eye-left",	//	We're facing south; they're facing east.
+			"eye-back",	//	We're facing south; they're facing south.
+			"eye-right"	//	We're facing south; they're facing west.
+		],
+		[	//	Note: The order of the following elements must be consistent with the StandardIndex of the relevant directions.
+			"eye-right",//	We're facing west; they're facing north.
+			"eye-front",//	We're facing west; they're facing east.
+			"eye-left",	//	We're facing west; they're facing south.
+			"eye-back"	//	We're facing west; they're facing west.
+		]
+	];
+	
+	kDirectionUp.Clockwise           = kDirectionRight;
+	kDirectionUp.CounterClockwise    = kDirectionLeft;
+	
+	kDirectionLeft.Clockwise         = kDirectionUp;
+	kDirectionLeft.CounterClockwise  = kDirectionDown;
+	
+	kDirectionRight.Clockwise        = kDirectionDown;
+	kDirectionRight.CounterClockwise = kDirectionUp;
+	
+	kDirectionDown.Clockwise         = kDirectionLeft;
+	kDirectionDown.CounterClockwise  = kDirectionRight;
+	
+	const kScalingFactors = [
+		1,
+		0.72,
+		0.5184,
+		0.373248,
+		0.26873856,
+		0.1934917632,
+		0.1393140695,
+		0.1003061300,
+		0.0722204136,
+		0.0519986978,
+		0.0374390624,
+		0.0269561249,
+		0.0194084099,
+		0.0139740552,
+		0.0100613197,
+		0.0072441502,
+		0.0052157881
+	];
+	
+	const kLeftWalls = [ 
+		document.getElementById("left-wall-0"),
+		document.getElementById("left-wall-1"),
+		document.getElementById("left-wall-2"),
+		document.getElementById("left-wall-3"),
+		document.getElementById("left-wall-4"),
+		document.getElementById("left-wall-5"),
+		document.getElementById("left-wall-6"),
+		document.getElementById("left-wall-7"),
+		document.getElementById("left-wall-8"),
+		document.getElementById("left-wall-9"),
+		document.getElementById("left-wall-A"),
+		document.getElementById("left-wall-B"),
+		document.getElementById("left-wall-C"),
+		document.getElementById("left-wall-D"),
+		document.getElementById("left-wall-E"),
+		document.getElementById("left-wall-F")
+	];
+	
+	const kLeftCorridors = [
+		document.getElementById("left-corridor-0"),
+		document.getElementById("left-corridor-1"),
+		document.getElementById("left-corridor-2"),
+		document.getElementById("left-corridor-3"),
+		document.getElementById("left-corridor-4"),
+		document.getElementById("left-corridor-5"),
+		document.getElementById("left-corridor-6"),
+		document.getElementById("left-corridor-7"),
+		document.getElementById("left-corridor-8"),
+		document.getElementById("left-corridor-9"),
+		document.getElementById("left-corridor-A"),
+		document.getElementById("left-corridor-B"),
+		document.getElementById("left-corridor-C"),
+		document.getElementById("left-corridor-D"),
+		document.getElementById("left-corridor-E"),
+		document.getElementById("left-corridor-F")
+	];
+	
+	const kRightWalls = [ 
+		document.getElementById("right-wall-0"),
+		document.getElementById("right-wall-1"),
+		document.getElementById("right-wall-2"),
+		document.getElementById("right-wall-3"),
+		document.getElementById("right-wall-4"),
+		document.getElementById("right-wall-5"),
+		document.getElementById("right-wall-6"),
+		document.getElementById("right-wall-7"),
+		document.getElementById("right-wall-8"),
+		document.getElementById("right-wall-9"),
+		document.getElementById("right-wall-A"),
+		document.getElementById("right-wall-B"),
+		document.getElementById("right-wall-C"),
+		document.getElementById("right-wall-D"),
+		document.getElementById("right-wall-E"),
+		document.getElementById("right-wall-F")
+	];
+	
+	const kRightCorridors = [
+		document.getElementById("right-corridor-0"),
+		document.getElementById("right-corridor-1"),
+		document.getElementById("right-corridor-2"),
+		document.getElementById("right-corridor-3"),
+		document.getElementById("right-corridor-4"),
+		document.getElementById("right-corridor-5"),
+		document.getElementById("right-corridor-6"),
+		document.getElementById("right-corridor-7"),
+		document.getElementById("right-corridor-8"),
+		document.getElementById("right-corridor-9"),
+		document.getElementById("right-corridor-A"),
+		document.getElementById("right-corridor-B"),
+		document.getElementById("right-corridor-C"),
+		document.getElementById("right-corridor-D"),
+		document.getElementById("right-corridor-E"),
+		document.getElementById("right-corridor-F")
+	];
+	
+	const kCenterWalls = [
+		document.getElementById("center-wall-0"),
+		document.getElementById("center-wall-1"),
+		document.getElementById("center-wall-2"),
+		document.getElementById("center-wall-3"),
+		document.getElementById("center-wall-4"),
+		document.getElementById("center-wall-5"),
+		document.getElementById("center-wall-6"),
+		document.getElementById("center-wall-7"),
+		document.getElementById("center-wall-8"),
+		document.getElementById("center-wall-9"),
+		document.getElementById("center-wall-A"),
+		document.getElementById("center-wall-B"),
+		document.getElementById("center-wall-C"),
+		document.getElementById("center-wall-D"),
+		document.getElementById("center-wall-E"),
+		document.getElementById("center-wall-F")
+	];
+	
+	const kTeleportDiscs = [
+		document.getElementById("teleport-disc-0"),
+		document.getElementById("teleport-disc-1"),
+		document.getElementById("teleport-disc-2"),
+		document.getElementById("teleport-disc-3"),
+		document.getElementById("teleport-disc-4"),
+		document.getElementById("teleport-disc-5"),
+		document.getElementById("teleport-disc-6"),
+		document.getElementById("teleport-disc-7"),
+		document.getElementById("teleport-disc-8"),
+		document.getElementById("teleport-disc-9"),
+		document.getElementById("teleport-disc-A"),
+		document.getElementById("teleport-disc-B"),
+		document.getElementById("teleport-disc-C"),
+		document.getElementById("teleport-disc-D"),
+		document.getElementById("teleport-disc-E"),
+		document.getElementById("teleport-disc-F")
+	];
+	
+	const kLineOfSightGroup = document.getElementById("line-of-sight");
+	
+	var ViewBBox;				//	Bounding box of the 3D maze view.
+	var TheMaze;				//	Maze instance.
+	var MyMarker;				//	MazeMarker instance.
+	var MyPeekMode;				//	true if we're peeking, false otherwise.
+	var MyPeekDirection;		//	If MyPeekMode is true, this is the direction in which we're peeking. Otherwise, this should be ignored.
+	var MyDirection;			//	One of the predefined Direction objects: kDirectionUp, etc.
+	var MyLocationX;			//	int.
+	var MyLocationY;			//	int.
+	var MyCell;					//	Cell instance.
+	var Players;				//	List of players and their scores.
+	var MaintainStatusRequestInterval;
+	var QueuedStatusRequest;	//	XMLHttpRequest object.
+	var MyMaxUpdateSerialNo = -1;
+	var MyDeathCount = 0;		//	Number of times this player has died.
+	
+	var OpRequestInProgress     = false;
+	var QueuedOpRequestsList    = null;
+	var QueuedOpRequestsListEnd = null;
+	
+	var OriginalOnMouseWheel = window.onmousewheel;
+	
+	init();
+//	waitForGameToStart();
+//	join();
+
+	this.waitForGameToStart                   = waitForGameToStart;
+	this.join                                 = join;
+	this.maintainStatusRequest                = maintainStatusRequest;
+	this.setPosition                          = setPosition;
+	this.moveForward                          = moveForward;
+	this.moveForwardAndRotateClockwise        = moveForwardAndRotateClockwise;
+	this.moveForwardAndRotateCounterClockwise = moveForwardAndRotateCounterClockwise;
+	this.moveBackward                         = moveBackward;
+	this.rotateClockwise                      = rotateClockwise;
+	this.rotateCounterClockwise               = rotateCounterClockwise;
+	this.rotate180                            = rotate180;
+	this.shoot                                = shoot;
+	this.peekLeft                             = peekLeft;
+	this.peekRight                            = peekRight;
+	
+	
+	function init() {
+		const MazeViewBBox = document.getElementById("maze-view-bbox");
+		const BBoxTop      = parseInt(MazeViewBBox.getAttribute("y"     ));
+		const BBoxLeft     = parseInt(MazeViewBBox.getAttribute("x"     ));
+		const BBoxWidth    = parseInt(MazeViewBBox.getAttribute("width" ));
+		const BBoxHeight   = parseInt(MazeViewBBox.getAttribute("height"));
+		
+		document.getElementById("maze-view-group").insertBefore(createInsetBorders(BBoxLeft, BBoxTop, BBoxWidth, BBoxHeight, 10), document.getElementById("maze-view"));
+		
+		ViewBBox = new Rectangle(BBoxLeft, BBoxTop, BBoxWidth, BBoxHeight);
+		
+		for (var Index = 0; Index < kTeleportDiscs.length; Index++)
+			kTeleportDiscs[Index].style.display = 'none';
+
+		document.getElementById("eye-front").addEventListener("click", shoot, false);
+		document.getElementById("eye-left" ).addEventListener("click", shoot, false);
+		document.getElementById("eye-right").addEventListener("click", shoot, false);
+		document.getElementById("eye-back" ).addEventListener("click", shoot, false);
+
+		document.getElementById("floor").addEventListener("click", moveForward, false);
+		
+		kRightWalls[0].addEventListener("click", rotateClockwise, false);
+		kRightCorridors[0].addEventListener("click", rotateClockwise, false);
+		kRightCorridors[1].addEventListener("click", moveForwardAndRotateClockwise, false);
+		
+		kLeftWalls[0].addEventListener("click", rotateCounterClockwise, false);
+		kLeftCorridors[0].addEventListener("click", rotateCounterClockwise, false);
+		kLeftCorridors[1].addEventListener("click", moveForwardAndRotateCounterClockwise, false);
+		
+		kCenterWalls[1].addEventListener("click", moveForward, false);
+		kTeleportDiscs[1].addEventListener("click", moveForward, false);
+		
+		for (Index = 2; Index < kLeftWalls.length; Index++) {
+			
+			kCenterWalls[Index].addEventListener("click", moveForward, false);
+			kTeleportDiscs[Index].addEventListener("click", moveForward, false);
+			
+			kLeftWalls[Index].addEventListener("click", moveForward, false);
+			kLeftCorridors[Index].addEventListener("click", moveForward, false);
+			
+			kRightWalls[Index].addEventListener("click", moveForward, false);
+			kRightCorridors[Index].addEventListener("click", moveForward, false);
+		}
+		
+	//	Enable mouse wheel movement in Safari. (This does nothing in Firefox.)
+		
+		window.onmousewheel = function(Event) {
+			
+			if (OriginalOnMouseWheel !== undefined && OriginalOnMouseWheel != null)
+				OriginalOnMouseWheel(Event);
+			
+			const DeltaX = Event.wheelDeltaX;
+			const DeltaY = Event.wheelDeltaY;
+			
+			if (DeltaY != 0 && DeltaX != 0) {
+				
+				if (DeltaY > 0 && DeltaX > 0)
+					moveForwardAndRotateCounterClockwise();
+				else if (DeltaY > 0 && DeltaX < 0)
+					moveForwardAndRotateClockwise();
+				else
+					moveBackward();
+			
+			} else if (DeltaY != 0) {
+			
+				if (DeltaY > 0)
+					moveForward();
+				else
+					moveBackward();
+			
+			} else if (DeltaX != 0) {
+				
+				if (DeltaX > 0)
+					rotateCounterClockwise();
+				else
+					rotateClockwise();
+			}
+		};
+	
+	//	Enable mouse wheel movement in Firefox. (This does nothing in Safari.)
+	//	See <https://developer.mozilla.org/En/Code_snippets/Miscellaneous>.
+		
+		window.addEventListener(
+			"DOMMouseScroll", 
+			function(Event) {
+				
+				if (Event.detail < 0)
+					moveForward();
+				else if (Event.detail > 0)
+					moveBackward();
+			}, 
+			false
+		);
+	}
+	
+	function waitForGameToStart() {
+		requestGameOverInformation();
+	}
+	
+	function join() {
+		document.getElementById("root").removeChild(document.getElementById("wait-counter-group"));	//	Remove the counter.	
+		makeRequestLow(GameURL + "?op=join&pid=" + MyPlayerID, joinedProc);
+	}
+	
+	function joinedProc
+	(
+		HTTPRequest		
+	) 
+	{
+		if (HTTPRequest.readyState == 4) {
+			
+			if (HTTPRequest.status == 200) {
+				
+				if (gameOver(HTTPRequest))
+					return;
+				
+				TheMaze    = new Maze(HTTPRequest.responseXML);
+				MyMarker   = new MazeMarker(TheMaze);
+				MyPlayerID = getElementByTagNamePath(HTTPRequest.responseXML, "player id").textContent;
+				Players    = new PlayerList(TheMaze.getBBox());
+				
+				Players.setPlayerList(getElementByTagNamePath(HTTPRequest.responseXML, "update players"));
+				
+			//	Based on the union of the bounding boxes of the 3D maze view, the maze map, and the player list, and a
+			//	pleasing additional margin, set the viewBBox attribute of the "svg" element that contains this entire
+			//	document.
+				
+				const TotalBBox = new Rectangle(ViewBBox.X, ViewBBox.Y, ViewBBox.Width, ViewBBox.Height);
+				
+				TotalBBox.addRectangle(TheMaze.getBBox());
+				TotalBBox.addRectangle(Players.getBBox());
+				TotalBBox.insetRect(-60, -60);
+				
+				const Root = document.getElementById("root");
+				
+				Root.setAttribute("viewBox", TotalBBox.X + ' ' + TotalBBox.Y + ' ' + TotalBBox.Width + ' ' + TotalBBox.Height);
+				
+			//	The "join" response is a superset of the usual update response, so we can invoke it's handler proc to
+			//	deal with all of the fields in the intersection of the "join" and update responses.
+				
+				processOpResponseProc(HTTPRequest);
+				
+			//	Begin processing keyboard input.
+				
+				Root.addEventListener('keydown', handleKeyDownEvents, false);				
+				
+			//	Now that we've joined the game, make sure we get new information from the server whenever it needs to
+			//	send it.
+			//
+			//	See <http://developer.mozilla.org/en/DOM/window.setInterval>.
+				
+				MaintainStatusRequestInterval = window.setInterval('Game.maintainStatusRequest()', 500);
+				
+			} else {
+				alert('There was a problem with the request. Status: ' + HTTPRequest.status + ". Message: " + HTTPRequest.responseText);
+			}
+		}
+	}
+	
+	function replaceStatusRequest
+	(
+		ErrorProgressEvent	//	XMLHttpRequestProgressEvent
+	)
+	{
+		const BadHttpRequest = ErrorProgressEvent !== undefined ? ErrorProgressEvent.target : undefined;
+		
+	//	If QueuedStatusRequest represents a different request from BadHttpRequest, assume that we've badly lost track
+	//	of what's going on, and dispose of QueuedStatusRequest.
+		
+		if (BadHttpRequest !== undefined) {
+			
+		//	Dispose of the bad status request.
+			
+		//	if (console !== undefined) {
+		//		
+		//		if (BadHttpRequest === QueuedStatusRequest)
+		//			console.info("Aborting the current status request because it invoked its error handler. statusProc should replace the status request.");
+		//		else
+		//			console.info("Aborting an unfamiliar status request because it invoked its error handler. statusProc should replace the status request.");
+		//	}
+			
+			try {
+				BadHttpRequest.abort();	//	This should trigger an invocation of statusProc.
+			} catch (e) { }
+			
+		} else {
+			
+		//	if (console !== undefined)
+		//		console.warn("replaceStatusRequest(undefined) invoked.");
+			
+			if (QueuedStatusRequest !== undefined && QueuedStatusRequest != null) {
+			
+			//	if (console !== undefined)
+			//		console.warn("Aborting status request.");
+				
+				try {
+					var AbortStatusRequest = QueuedStatusRequest;
+					
+					QueuedStatusRequest = undefined;
+					AbortStatusRequest.abort();	//	This should trigger an invocation of statusProc.
+				} catch (e) { }
+			}
+			
+			createStatusRequest();
+		}
+	}
+	
+	function maintainStatusRequest() {
+		
+		if (QueuedStatusRequest === undefined || QueuedStatusRequest == null) {
+			
+			createStatusRequest();
+			
+		} else if (QueuedStatusRequest.readyState == 4) {
+			
+			replaceStatusRequest();
+		}
+	}
+	
+//	function getStatusRequestCount() {
+//		return (QueuedStatusRequest === undefined || QueuedStatusRequest == null) ? 0 : 1;
+//	}
+	
+	function createStatusRequest() {
+		
+		if (QueuedStatusRequest !== undefined && QueuedStatusRequest != null) {
+			
+		//	if (console !== undefined)
+		//		console.warn("A status request is currently queued, so a new request will NOT be created.");
+				
+			return;
+		}
+		
+	//	if (console !== undefined)
+	//		console.info("Creating a new status request at: " + new Date());
+		
+		QueuedStatusRequest = makeRequestLow(GameURL + "?op=status&pid=" + MyPlayerID, statusProc, replaceStatusRequest, 5 * 60 * 1000);	//	Five *minute* timeout.
+	}
+	
+	function statusProc
+	(
+		HTTPRequest
+	)
+	{
+		if (HTTPRequest.readyState == 4) {
+			
+		//	Process this status information.
+			
+		//	if (console !== undefined)
+		//		console.info("Dropping reference to status request.");
+			
+			QueuedStatusRequest = undefined;
+			
+			if (HTTPRequest.status == 200) {
+				
+				if (gameOver(HTTPRequest))
+					return;
+				
+			//	Make sure that a new status request replaces the one whose reply we're currently processing. Note that
+			//	we do NOT use maintainStatusRequest for this purpose - doing so obliterates the XML that would other-
+			//	wise be available from HTTPRequest, and that we need to process below.
+				
+				createStatusRequest();
+				
+			//	If the XML is unavailable, return.
+				
+				const RespXML = HTTPRequest.responseXML;
+				
+				if (RespXML === undefined || RespXML == null)
+					return;
+				
+			//	Process the status information supplied by HTTPRequest.
+				
+				if (getOptionalElementByTagNamePath(RespXML, "no-op") !== undefined)
+					return;
+				
+				const PositionNode = getElementByTagNamePath(RespXML, "player position");
+				const NewDirection = directionNameToDirection(PositionNode.getElementsByTagName("orientation")[0].textContent);
+				const NewX         = parseInt(PositionNode.getElementsByTagName("x")[0].textContent);
+				const NewY         = parseInt(PositionNode.getElementsByTagName("y")[0].textContent);
+				const DeathCount   = parseInt(getElementByTagNamePath(RespXML, "player deaths").textContent);
+				const Killed       = DeathCount > MyDeathCount;
+				
+			//	Reject the status information if the player position or direction is obsolete, unless the player has 
+			//	just been killed.
+				
+				if (!Killed && (!NewDirection.equals(MyDirection) || NewX != MyLocationX || NewY != MyLocationY))
+					return;
+				
+			//	Update the maze view. Note that, because the our position and orientation hasn't changed, our view of
+			//	the maze cannot have changed. What may have changed, is what is, or isn't, in our line-of-sight.
+				
+				const SuspendID = document.documentElement.suspendRedraw(15 * 1000);
+				
+				try {
+					
+					if (Killed) {
+						
+						killed(DeathCount);
+						MyMarker.setStandard();
+						setPosition(NewX, NewY, NewDirection, true);
+					}
+					
+					setupLineOfSight(RespXML);
+					Players.setPlayerList(getElementByTagNamePath(RespXML, "update players"));
+					
+				} finally {
+					document.documentElement.unsuspendRedraw(SuspendID);
+				}
+				
+				createNewStatusConnectionIfServerSaysWeDoNotHaveOne(HTTPRequest);
+				
+			} else if (HTTPRequest.status == 307) {	//	SC_TEMPORARY_REDIRECT - Temporary redirect.
+				
+			//	See <http://developer.mozilla.org/en/DOM/window.clearInterval>.
+				
+				MaintainStatusRequestInterval.clearInterval(MaintainStatusRequestInterval);
+				
+			//	See <http://developer.mozilla.org/En/DOM/Window.location>.
+				
+				window.location = HTTPRequest.getResponseHeader("Location");
+				
+			} else if (HTTPRequest.status == 404	//	SC_NOT_FOUND - Resource is not available.
+			       ||  HTTPRequest.status == 410) {	//	SC_GONE      - Resource is not available.
+				
+			//	See <http://developer.mozilla.org/en/DOM/window.clearInterval>.
+			
+				clearInterval(MaintainStatusRequestInterval);
+			
+			//	See <http://developer.mozilla.org/En/DOM/Window.location>.
+				
+				window.location = window.location;	//	Hopefully, this will cause the current page to be reloaded.
+				
+			} else {
+				
+			//	408 errors (SC_REQUEST_TIMEOUT) should be handled here.
+				
+			//	Make sure that a new status request replaces the bad one represented by HTTPRequest.
+				
+			//	if (console !== undefined)
+			//		console.info("Replacing failed status request (HTTP status code %d).", HTTPRequest.status);
+				
+				maintainStatusRequest();
+			}
+		}
+	}
+	
+	function killed(DeathCount) {
+		
+		if (MyDeathCount < DeathCount) {
+			
+			MyDeathCount = DeathCount;
+			
+		//	todo Play an optional sound.
+			
+		//	Provide visual feedback - flash the display white for 1.5 seconds. Use a fade-out effect in SVG engines that 
+		//	support animation.
+			
+			const Root               = document.getElementById("root");
+			const RootViewBBoxValues = Root.getAttribute("viewBox").split(" ");
+			const KilledScreen       = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+			const KilledScreenID     = "killed-" + DeathCount;
+			
+			KilledScreen.setAttribute("class",  "killed"             );
+			KilledScreen.setAttribute("id",     KilledScreenID       );
+			KilledScreen.setAttribute("x",      RootViewBBoxValues[0]);
+			KilledScreen.setAttribute("y",      RootViewBBoxValues[1]);
+			KilledScreen.setAttribute("width",  RootViewBBoxValues[2]);
+			KilledScreen.setAttribute("height", RootViewBBoxValues[3]);
+			
+		//	See <http://www.w3.org/TR/SVG/animate.html#AnimateElement>.
+			
+			const Animation = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+			
+			Animation.setAttribute("attributeType", "CSS"    );
+			Animation.setAttribute("attributeName", "opacity");
+			Animation.setAttribute("from",          "1"      );
+			Animation.setAttribute("to",            "0"      );
+			Animation.setAttribute("duration",      "2s"     );
+			
+			KilledScreen.appendChild(Animation);
+			Root.appendChild(KilledScreen);
+			
+		//	See <http://developer.mozilla.org/En/DOM/Window.setTimeout>.
+			
+			window.setTimeout("document.getElementById(\"root\").removeChild(document.getElementById(\"" + KilledScreenID + "\"))", 1500);
+		}
+	}
+	
+	function createNewStatusConnectionIfServerSaysWeDoNotHaveOne
+	(
+		HTTPRequest
+	) 
+	{
+		const StatusConnAbsentElem = getOptionalElementByTagNamePath(HTTPRequest.responseXML, "player status-conn-queue-empty-ms");
+		
+		if (StatusConnAbsentElem !== undefined) {
+			var StatusConnAbsentMs = parseInt(StatusConnAbsentElem.textContent);
+			
+			if (StatusConnAbsentMs >= 1000) {
+				
+			//	if (console !== undefined && getStatusRequestCount() != 0)
+			//		console.warn("Game server says status request queue has been empty for more than a second (specifically %d s.). However, we show the queue contains %d element(s).", StatusConnAbsentMs / 1000, getStatusRequestCount());
+				
+				replaceStatusRequest();
+			}
+		}
+	}
+	
+	function setupLineOfSight
+	(
+		XML		
+	)
+	{
+		const SightList = new Array(kCenterWalls.length);
+		const Sights    = getOptionalElementsByTagNamePath(XML, "update line-of-sight sight");
+		var   Index;
+		var   ColorOfNearestEyeHasBeenSet = false;
+		var   SightNode;
+		var   Depth;
+		var   Type;
+		var   Symbol;
+		
+	//	Note that the line-of-sight elements are always ordered from nearest to farthest in the list.
+		
+		for (Index = 0; Index < Sights.length; Index++) {
+			SightNode = Sights[Index];
+			Depth     = parseInt(SightNode.getElementsByTagName("depth")[0].textContent);
+			Type      = SightNode.getElementsByTagName("type")[0].textContent;
+			
+			switch (Type) {
+				
+				case "PLAYER":
+					
+					if (!ColorOfNearestEyeHasBeenSet) {
+						
+					//	Because there is only one eye symbol for each eye orientation, all eyes of a particular 
+					//	orientation have the same color at the same time. This would be a major problem if multiple
+					//	eyes could ever be seen at the same time. Fortunately, that is not the case. However, we do
+					//	have to be careful to assign a color only to the nearest eye (the only one that can be seen), 
+					//	otherwise the eye color will be incorrect if there is more than one eye in our line-of-sight.
+					//	
+					//	Note that we can't just hide all eyes that are behind the nearest one, because their shadows 
+					//	can sometimes be seen behind the nearest eye. Fortunately, their irises cannot be seen.
+						
+						SightList[Depth] = createPlayer(
+											   Depth, 
+											   SightNode.getElementsByTagName("orientation")[0].textContent, 
+											   SightNode.getElementsByTagName("eye-color"  )[0].textContent
+										   );
+						
+						ColorOfNearestEyeHasBeenSet = true;
+						
+					} else {
+						
+						SightList[Depth] = createPlayer(
+											   Depth, 
+											   SightNode.getElementsByTagName("orientation")[0].textContent
+										   );	
+					}
+					break;
+			
+				default:
+					
+					throw "Unknown entity type: \"" + Type + "\".";
+					break;
+			}
+		}
+		
+	//	Add the visible symbols to the document in order from farthest away to nearest.
+		
+		removeAllChildren(kLineOfSightGroup);
+		
+		for (Index = SightList.length; --Index >= 0; ) {
+			
+			Symbol = SightList[Index];
+			if (Symbol !== undefined)
+				kLineOfSightGroup.appendChild(Symbol);
+		}
+		
+		return SightList;
+	}
+	
+	function createPlayer
+	(
+		Depth,				//	Number of cells away from us.
+		OrientationName,	//	Direction name: "north", "west", "east", "south".
+		EyeColor			//	"#FF45A9"
+	)
+	{
+		if (Depth >= kScalingFactors.length)
+			return null;
+		
+		const PlayerDirection = directionNameToDirection(OrientationName);
+		var   PlayerSymbolID;
+		
+		if (MyPeekMode)
+			PlayerSymbolID = kPlayerOrientationIDTable[MyPeekDirection.StandardIndex][PlayerDirection.StandardIndex];
+		else
+			PlayerSymbolID = kPlayerOrientationIDTable[MyDirection.StandardIndex][PlayerDirection.StandardIndex];
+		
+		const Use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+		Use.setAttributeNS("http://www.w3.org/1999/xlink", "href", "#" + PlayerSymbolID);
+		Use.setAttribute("transform", "scale(" + kScalingFactors[Depth] + ")");
+		
+		if (PlayerSymbolID != "eye-back" && EyeColor !== undefined)
+			document.getElementById(PlayerSymbolID + "-iris").setAttribute("fill", EyeColor);
+		//	document.getElementById(PlayerSymbolID + "-iris").style.fill = EyeColor;	//	todo Note: This doesn't work in Firefox 3.6b5, or any earlier version. I have reported it via Bugzilla. It is bug 536779.
+		
+		return Use;
+	}
+	
+	function makeOpRequest
+	(
+		ParamStr
+	)
+	{
+		if (ParamStr === undefined) {
+			
+			if (QueuedOpRequestsList != null && !OpRequestInProgress) {
+				
+			//	Issue the first queued request in QueuedOpRequestsList.
+				
+				OpRequestInProgress = true;
+				
+				ParamStr = QueuedOpRequestsList;
+				
+				QueuedOpRequestsList = ParamStr.NextQueuedOp;
+				if (QueuedOpRequestsList == null)
+					QueuedOpRequestsListEnd = null;
+				
+				makeRequestLow(GameURL + ParamStr, processOpResponseProc, makeOpRequestErrorProc);
+				
+			//	if (console !== undefined)
+			//		console.info("Dequeued and sent \"op\" request: " + ParamStr);
+			}
+			
+		} else {
+			
+			if (QueuedOpRequestsList != null || OpRequestInProgress) {
+				
+			//	There are requests in the queue already, so add this new request to the end of the queue.
+
+				ParamStr.NextQueuedOp = null;
+				
+				if (QueuedOpRequestsListEnd == null)
+					QueuedOpRequestsList = ParamStr;
+				else
+					QueuedOpRequestsListEnd.NextQueuedOp = ParamStr;
+				
+				QueuedOpRequestsListEnd = ParamStr;
+				
+			//	if (console !== undefined)
+			//		console.info("Enqueued \"op\" request: " + ParamStr);
+				
+			} else {
+				
+			//	The request queue is empty, and no request is in progress, so issue this request immediately.
+				
+				OpRequestInProgress = true;
+				makeRequestLow(GameURL + ParamStr, processOpResponseProc, makeOpRequestErrorProc);
+				
+			//	if (console !== undefined)
+			//		console.info("Sent \"op\" request: " + ParamStr);
+			}
+		}
+	}
+	
+	function makeOpRequestErrorProc
+	(
+		ErrorProgressEvent	//	XMLHttpRequestProgressEvent
+	)
+	{
+		try {
+			const BadHttpRequest = ErrorProgressEvent !== undefined ? ErrorProgressEvent.target : undefined;
+			
+			if (BadHttpRequest !== undefined) {
+				
+				try {
+					BadHttpRequest.abort();	//	This should trigger an invocation of processOpResponseProc.
+				} catch (e) { }
+				
+			} else {
+				
+			//	if (console !== undefined)
+			//		console.warn("updateErrorProc(undefined) invoked.");
+			}
+		
+		} finally {
+			
+			OpRequestInProgress = false;
+			makeOpRequest();
+		}
+	}
+	
+	function processOpResponseProc
+	(
+		HTTPRequest
+	)
+	{
+		if (HTTPRequest.readyState == 4) {
+			
+			if (HTTPRequest.status == 200) {
+				
+				if (gameOver(HTTPRequest))
+					return;
+				
+			//	Send the next (if any) "op" request to the game server.
+				
+				OpRequestInProgress = false;				
+				makeOpRequest();
+				
+			//	try {
+					const RespXML = HTTPRequest.responseXML;
+					
+					if (RespXML === undefined || RespXML == null)
+						return;
+					
+				//	Get on with the usual update work.
+					
+					const UpdateNode = RespXML.getElementsByTagName("update")[0];
+					
+					if (UpdateNode === undefined)
+						throw "Bad update: " + HTTPRequest.responseText;
+					
+					const UpdateSerialNo = parseInt(UpdateNode.getAttribute("serial-no"));
+					
+					if (MyMaxUpdateSerialNo >= UpdateSerialNo) {
+						
+					//	if (console !== undefined)
+					//		console.warn("Rejected update with serial number %d. Previous good serial number was %d.", UpdateSerialNo, MyMaxUpdateSerialNo);
+						return;
+					}
+					
+					MyMaxUpdateSerialNo = UpdateSerialNo;
+					
+					const PositionNode = getElementByTagNamePath(RespXML, "player position");
+					const NewDirection = directionNameToDirection(PositionNode.getElementsByTagName("orientation")[0].textContent);
+					const NewX         = parseInt(PositionNode.getElementsByTagName("x")[0].textContent);
+					const NewY         = parseInt(PositionNode.getElementsByTagName("y")[0].textContent);
+					
+					const PeekNode     = UpdateNode.getElementsByTagName("peek")[0];
+					var PeekX;
+					var	PeekY;
+					
+					if (PeekNode !== undefined) {
+						
+						MyPeekMode      = true;
+						PeekX           = parseInt(PeekNode.getElementsByTagName("x")[0].textContent);
+						PeekY           = parseInt(PeekNode.getElementsByTagName("y")[0].textContent);
+						MyPeekDirection = directionNameToDirection(PeekNode.getElementsByTagName("orientation")[0].textContent);
+					
+					} else
+						MyPeekMode = false; 
+				
+					const DeathCount = parseInt(getElementByTagNamePath(RespXML, "player deaths").textContent);
+					const SuspendID  = document.documentElement.suspendRedraw(15 * 1000);
+					
+					try {
+						
+						if (DeathCount > MyDeathCount)
+							killed(DeathCount);
+						
+						setPosition(NewX, NewY, NewDirection, !MyPeekMode);
+						
+						if (MyPeekMode) {
+							
+							updateMazeView(TheMaze.getCell(PeekX, PeekY), PeekX, PeekY, MyPeekDirection);
+							
+							if (MyPeekDirection === MyDirection.CounterClockwise)
+								MyMarker.setPeekLeft();
+							else
+								MyMarker.setPeekRight();
+						} else
+							MyMarker.setStandard();
+						
+						setupLineOfSight(RespXML);
+						
+						Players.setPlayerList(getElementByTagNamePath(RespXML, "update players"));
+						
+					} finally {
+						document.documentElement.unsuspendRedraw(SuspendID);
+					}
+					
+					createNewStatusConnectionIfServerSaysWeDoNotHaveOne(HTTPRequest);
+					
+			//	} finally {
+			//	
+			//	//	Send the next (if any) "op" request to the game server.
+			//		
+			//		OpRequestInProgress = false;				
+			//		makeOpRequest();
+			//	}
+				
+			} else if (HTTPRequest.status == 307) {	//	SC_TEMPORARY_REDIRECT - Temporary redirect.
+				
+			//	See <http://developer.mozilla.org/En/DOM/Window.location>.
+				
+				window.location = HTTPRequest.getResponseHeader("Location");
+				
+			//	if (console !== undefined)
+			//		console.info("Attempting to redirect to <%s>.", HTTPRequest.getResponseHeader("Location"));
+				
+			} else {
+				throw 'There was a problem with the request. Status: ' + HTTPRequest.status + ". Message: " + HTTPRequest.responseText;
+			}
+		}
+	}
+	
+	function directionNameToDirection
+	(
+		DirectionName
+	)
+	{
+		var ThisDirection;
+		
+		for (var Index = 0; Index < kDirections.length; Index++) {
+			
+			ThisDirection = kDirections[Index];
+			if (ThisDirection.StandardName == DirectionName)
+				return ThisDirection;
+		}
+		
+		throw "The string \"" + DirectionName + "\" does not correspond to a direction name.";
+	}
+	
+	function shoot() {
+		makeOpRequest("?op=shoot&pid=" + MyPlayerID);
+	}
+	
+	function moveForward() {
+		
+		if (MyCell.canGoInDirection(MyDirection)) {
+			const NewLocationX = MyLocationX + MyDirection.XOffset;
+			const NewLocationY = MyLocationY + MyDirection.YOffset;
+			
+			makeOpRequest("?op=update&pid=" + MyPlayerID + "&x=" + NewLocationX + "&y=" + NewLocationY + "&d=" + MyDirection.StandardName);			
+		}
+	}
+	
+	function moveForwardAndRotateClockwise() {
+		
+		if (MyCell.canGoInDirection(MyDirection)) {
+			const NewLocationX = MyLocationX + MyDirection.XOffset;
+			const NewLocationY = MyLocationY + MyDirection.YOffset;
+			
+			makeOpRequest("?op=update&pid=" + MyPlayerID + "&x=" + NewLocationX + "&y=" + NewLocationY + "&d=" + MyDirection.Clockwise.StandardName);			
+		
+		} else
+			rotateClockwise();
+	}
+	
+	function moveForwardAndRotateCounterClockwise() {
+		
+		if (MyCell.canGoInDirection(MyDirection)) {
+			const NewLocationX = MyLocationX + MyDirection.XOffset;
+			const NewLocationY = MyLocationY + MyDirection.YOffset;
+			
+			makeOpRequest("?op=update&pid=" + MyPlayerID + "&x=" + NewLocationX + "&y=" + NewLocationY + "&d=" + MyDirection.CounterClockwise.StandardName);			
+		
+		} else
+			rotateCounterClockwise();
+	}
+	
+	function rotateClockwise() {
+		const NewDirection = MyDirection.Clockwise;
+		
+		makeOpRequest("?op=update&pid=" + MyPlayerID + "&x=" + MyLocationX + "&y=" + MyLocationY + "&d=" + NewDirection.StandardName);			
+	}
+	
+	function rotateCounterClockwise() {
+		const NewDirection = MyDirection.CounterClockwise;
+		
+		makeOpRequest("?op=update&pid=" + MyPlayerID + "&x=" + MyLocationX + "&y=" + MyLocationY + "&d=" + NewDirection.StandardName);			
+	}
+	
+	function rotate180() {
+		const NewDirection = MyDirection.Clockwise.Clockwise;
+		
+		makeOpRequest("?op=update&pid=" + MyPlayerID + "&x=" + MyLocationX + "&y=" + MyLocationY + "&d=" + NewDirection.StandardName);			
+	}
+	
+	function moveBackward() {
+		const MoveDirection = MyDirection.Clockwise.Clockwise;
+		
+		if (MyCell.canGoInDirection(MoveDirection)) {
+			const NewLocationX = MyLocationX + MoveDirection.XOffset;
+			const NewLocationY = MyLocationY + MoveDirection.YOffset;
+			
+			makeOpRequest("?op=update&pid=" + MyPlayerID + "&x=" + NewLocationX + "&y=" + NewLocationY + "&d=" + MyDirection.StandardName);			
+		}
+	}
+	
+	function peekLeft() {
+		
+	//	If we're already peeking to the left, cancel peeking. Otherwise, start peeking to the left.
+		
+		if (MyPeekMode && MyPeekDirection === MyDirection.CounterClockwise)
+			makeOpRequest("?op=peek-stop&pid=" + MyPlayerID);
+		else
+			makeOpRequest("?op=peek-start&pid=" + MyPlayerID + "&peek=left");
+	}
+	
+	function peekRight() {
+		
+	//	If we're already peeking to the right, cancel peeking. Otherwise, start peeking to the right.
+		
+		if (MyPeekMode && MyPeekDirection === MyDirection.Clockwise)
+			makeOpRequest("?op=peek-stop&pid=" + MyPlayerID);
+		else
+			makeOpRequest("?op=peek-start&pid=" + MyPlayerID + "&peek=right");
+	}
+	
+	function setPosition
+	(
+		X,			//	int
+		Y,			//	int
+		Dir,		//	Direction
+		UpdateView	//	true if the view should be updated, false otherwise.
+	)
+	{
+		MyMarker.setPosition(X, Y, Dir);
+		
+		MyLocationX = X;
+		MyLocationY = Y;
+		MyDirection = Dir;
+		MyCell      = TheMaze.getCell(MyLocationX, MyLocationY);
+		
+		if (UpdateView)
+			updateMazeView(MyCell, MyLocationX, MyLocationY, MyDirection);
+	}
+	
+	function updateMazeView
+	(
+		ViewCell,		//	Cell from which the view originates.
+		ViewCellX,		//	X coordinate of cell from which the view originates.
+		ViewCellY,		//	Y coordinate of cell from which the view originates.
+		ViewDirection	//	Direction of view.
+	) 
+	{
+		var DepthIndex = 0;
+		var HasFacingWall;
+		var HasLeftWall;
+		var HasRightWall;
+		
+		do {
+			HasFacingWall = ViewCell.hasFacingWall(ViewDirection);
+			
+			kCenterWalls[DepthIndex].style.display   = HasFacingWall       ? 'inherit' : 'none';
+			kTeleportDiscs[DepthIndex].style.display = ViewCell.IsTeleport ? 'inherit' : 'none';
+			
+			HasLeftWall  = ViewCell.hasLeftWall(ViewDirection);
+			HasRightWall = ViewCell.hasRightWall(ViewDirection);
+			
+			kLeftWalls[DepthIndex].style.display      = HasLeftWall   ? "inherit" : "none";
+			kLeftCorridors[DepthIndex].style.display  = !HasLeftWall  ? 'inherit' : 'none';
+			
+			kRightWalls[DepthIndex].style.display     = HasRightWall  ? "inherit" : "none";
+			kRightCorridors[DepthIndex].style.display = !HasRightWall ? 'inherit' : 'none';
+			
+			if (HasFacingWall)
+				break;
+			
+		//	Setup for the next iteration.
+			
+			ViewCellX += ViewDirection.XOffset;
+			ViewCellY += ViewDirection.YOffset;
+			ViewCell   = TheMaze.getCell(ViewCellX, ViewCellY);
+			DepthIndex++;
+			
+		} while (ViewCell != null && DepthIndex < kCenterWalls.length);
+		
+	//	Hide everything that is obscured behind the portions of the scene that are visible, on the assumption that
+	//	an SVG renderer might be rendering even the fully obscured elements of the scene, and that eliminating them
+	//	will, therefore, decrease total rendering time.
+		
+		while (++DepthIndex < kCenterWalls.length) {
+			
+			kCenterWalls[DepthIndex].style.display    = 'none';
+			kTeleportDiscs[DepthIndex].style.display  = 'none';
+			kLeftWalls[DepthIndex].style.display      = 'none';
+			kLeftCorridors[DepthIndex].style.display  = 'none';
+			kRightWalls[DepthIndex].style.display     = 'none';
+			kRightCorridors[DepthIndex].style.display = 'none';
+		}
+	}
+	
+	function gameOver
+	(
+		HTTPRequest
+	)
+	{
+		const XML = HTTPRequest.responseXML;
+		
+		if (XML.getElementsByTagName("game-over").length == 0)
+			return false;
+		
+		window.clearInterval(MaintainStatusRequestInterval);
+		
+	//	alert("Game Over.");
+		
+		window.location += XML.getElementsByTagName("game-over-page")[0].textContent;
+		
+		return true;
+	}
+}
+
+
+function Direction
+(
+	StandardName,	//	string = north, west, east, south.
+	StandardIndex,	//	int = 0-3, where 0 is up, 1 is left, 2 is right, 3 is down.
+	YOffset,		//	int = -1, 0, 1.
+	XOffset,		//	int = -1, 0, 1.
+	Angle			//	int (degrees).
+)
+{
+	this.StandardName     = StandardName;
+	this.StandardIndex    = StandardIndex;
+	this.XOffset          = XOffset;
+	this.YOffset          = YOffset;
+	this.Angle            = Angle;
+	this.CounterClockwise = null;
+	this.Clockwise        = null;
+	
+	this.set      = set;
+	this.toString = toString;
+	this.equals   = equals;
+	
+	function set
+	(
+		OtherDirection	//	Another Direction object.
+	)
+	{
+		this.StandardName     = OtherDirection.StandardName;
+		this.StandardIndex    = OtherDirection.StandardIndex;
+		this.XOffset          = OtherDirection.XOffset;
+		this.YOffset          = OtherDirection.YOffset;
+		this.CounterClockwise = OtherDirection.CounterClockwise;
+		this.Clockwise        = OtherDirection.Clockwise;
+	}
+	
+	function toString() {
+		return this.StandardName;	
+	}
+	
+	function equals
+	(
+		Other
+	) 
+	{
+		return this.StandardIndex == Other.StandardIndex;
+	}
+}
+
+
+function MazeMarker
+(
+	TheMaze	//	Maze object.		
+) 
+{
+	this.X;
+	this.Y;
+	this.Direction = kDirectionUp;	//	This direction should be consistent with the initial orientation of the "#marker" object.
+	
+	const CellSize   = TheMaze.getCellSize();
+	const CellRadius = CellSize / 2;
+	
+	const StdMarker = document.createElementNS("http://www.w3.org/2000/svg", "use");
+	StdMarker.setAttributeNS("http://www.w3.org/1999/xlink", "href", "#marker");
+	StdMarker.setAttribute("width",  CellSize);
+	StdMarker.setAttribute("height", CellSize);
+	
+	TheMaze.getMapGroup().appendChild(StdMarker);
+	
+	this.getX         = getX;
+	this.getY         = getY;
+	this.setPosition  = setPosition;
+	this.setPeekLeft  = setPeekLeft;
+	this.setPeekRight = setPeekRight;
+	this.setStandard  = setStandard;
+	
+	function setPosition
+	(
+		NewX,			//	int
+		NewY,			//	int
+		NewDirection	//	Direction object.
+	)
+	{
+		if (NewX != this.X || NewY != this.Y || NewDirection !== this.Direction) {
+			
+			this.X         = NewX;
+			this.Y         = NewY;
+			this.Direction = NewDirection;
+			
+			StdMarker.setAttribute("transform", "translate(" + (CellSize * NewX + CellRadius) + "," + (CellSize * NewY + CellRadius) + ") rotate(" + NewDirection.Angle + ")");
+		}
+	}
+	
+	function setPeekLeft() {
+		StdMarker.setAttribute("transform", "translate(" + (CellSize * this.X + CellRadius) + "," + (CellSize * this.Y + CellRadius) + ") rotate(" + (this.Direction.Angle - 45) + ")");		
+	}
+	
+	function setPeekRight() {
+		StdMarker.setAttribute("transform", "translate(" + (CellSize * this.X + CellRadius) + "," + (CellSize * this.Y + CellRadius) + ") rotate(" + (this.Direction.Angle + 45) + ")");		
+	}
+	
+	function setStandard() {
+		StdMarker.setAttribute("transform", "translate(" + (CellSize * this.X + CellRadius) + "," + (CellSize * this.Y + CellRadius) + ") rotate(" + this.Direction.Angle + ")");				
+	}
+	
+	function getX() {
+		return this.X;	
+	}
+	
+	function getY() {
+		return this.Y;	
+	}
+}
+
+
+function Maze
+(
+	MazeXML		
+)
+{
+	const WallSegmentLength = 4;
+	var CellCountX;
+	var CellCountY;
+	var BBox;
+	var Grid;	
+	var MapGroup;
+	
+	this.getMapGroup = getMapGroup;
+	this.getWidth    = getCellCountX;
+	this.getHeight   = getCellCountY;
+	this.getCell     = getCell;
+	this.getCellSize = getCellSize;
+	this.getBBox     = getBBox;
+	
+	createCells(MazeXML);
+	createMapGraphic(WallSegmentLength);
+	
+	
+	function createCells
+	(
+		MazeXML
+	) 
+	{
+		const MazeDesc = MazeXML.getElementsByTagName("maze")[0];		
+		
+		CellCountX = parseInt(MazeDesc.getElementsByTagName("width" )[0].textContent); 
+		CellCountY = parseInt(MazeDesc.getElementsByTagName("height")[0].textContent);
+		Grid       = new Array(CellCountY);
+		
+		const XMLRows = MazeDesc.getElementsByTagName("row");
+		var GridRow;
+		var YIndex;
+		var XIndex;
+		var MazeRowStr;
+		var MazeCellChar;
+		
+		for (YIndex = 0; YIndex < CellCountY; YIndex++) {
+			MazeRowStr = new String(XMLRows[YIndex].textContent);	
+			GridRow    = new Array(CellCountX);
+			
+			for (XIndex = 0; XIndex < CellCountX; XIndex++) {
+				MazeCellChar = MazeRowStr.charAt(XIndex);
+				
+				GridRow[XIndex] = new Cell().init(MazeCellChar == '#', MazeCellChar == 'O');
+			}
+			
+			Grid[YIndex] = GridRow;
+		}
+		
+	//	Initialize the various "has neighboring wall" attributes of each cell.
+		
+		for (YIndex = 0; YIndex < CellCountY; YIndex++) {
+			
+			GridRow = Grid[YIndex];
+			
+			for (XIndex = 0; XIndex < CellCountX; XIndex++) {
+				
+				GridRow[XIndex].initWalls(
+					(YIndex > 1 ? Grid[YIndex - 1][XIndex].IsWall : true),
+					(XIndex > 1 ? GridRow[XIndex - 1].IsWall : true),
+					(XIndex < (CellCountX - 1) ? GridRow[XIndex + 1].IsWall : true),
+					(YIndex < (CellCountY - 1) ? Grid[YIndex + 1][XIndex].IsWall : true)
+				);
+			}
+		}
+	}
+	
+	function createMapGraphic
+	(
+		WallSegmentLength	//	int
+	)
+	{		
+		MapGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+		
+		var XIndex;
+		var ConsecutiveWalls;
+		var WasWall;
+		var Graphic;
+		var Row;
+		var C;
+		
+		for (var YIndex = 0; YIndex < CellCountY; YIndex++) {
+			
+			Row = Grid[YIndex];
+			
+			ConsecutiveWalls = 0;
+			WasWall = false;
+			
+			for (XIndex = 0; XIndex < CellCountX; XIndex++) {
+				
+				C = Row[XIndex];
+				
+				if (C.IsWall) {	//	This cell is part of a wall.
+					
+					ConsecutiveWalls++;
+					WasWall = true;
+					
+				} else {
+					
+					if (WasWall) {
+						
+						Graphic = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+						Graphic.setAttribute("x",     (XIndex - ConsecutiveWalls) * WallSegmentLength);
+						Graphic.setAttribute("y",      YIndex * WallSegmentLength);
+						Graphic.setAttribute("width",  ConsecutiveWalls * WallSegmentLength);
+						Graphic.setAttribute("height", WallSegmentLength);
+				
+						MapGroup.appendChild(Graphic);
+				
+						WasWall = false;
+						ConsecutiveWalls = 0;
+					}
+					
+					if (C.IsTeleport) {
+						
+						Graphic = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+						Graphic.setAttribute("cx", XIndex * WallSegmentLength + WallSegmentLength / 2);
+						Graphic.setAttribute("cy", YIndex * WallSegmentLength + WallSegmentLength / 2);
+						Graphic.setAttribute("r",  WallSegmentLength / 2 - 1);
+						Graphic.setAttribute("class", "teleport");
+						
+						MapGroup.appendChild(Graphic);
+					}
+				}
+			}
+		
+			if (WasWall) {
+				
+				Graphic = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+				Graphic.setAttribute("x",     (XIndex - ConsecutiveWalls) * WallSegmentLength);
+				Graphic.setAttribute("y",      YIndex * WallSegmentLength);
+				Graphic.setAttribute("width",  ConsecutiveWalls * WallSegmentLength);
+				Graphic.setAttribute("height", WallSegmentLength);
+				
+				MapGroup.appendChild(Graphic);
+			}
+		}
+	
+		const MazeMapBBox  = document.getElementById("maze-map-bbox");
+		const BBoxTop      = parseInt(MazeMapBBox.getAttribute("y"     ));
+		const BBoxLeft     = parseInt(MazeMapBBox.getAttribute("x"     ));
+		const BBoxWidth    = parseInt(MazeMapBBox.getAttribute("width" ));
+		const BBoxHeight   = parseInt(MazeMapBBox.getAttribute("height"));
+		
+		const MapWidth     = WallSegmentLength * CellCountX;
+		const MapHeight    = WallSegmentLength * CellCountY;
+		
+		const HScale       = BBoxWidth  / MapWidth;
+		const VScale       = BBoxHeight / MapHeight;
+		const Scale        = HScale <= VScale ? HScale : VScale;
+		
+		const ScaledWidth  = MapWidth  * Scale;
+		const ScaledHeight = MapHeight * Scale;
+		
+		BBox = new Rectangle(BBoxLeft, BBoxTop, ScaledWidth, ScaledHeight);
+		
+		MazeMapBBox.setAttribute("width",  ScaledWidth );
+		MazeMapBBox.setAttribute("height", ScaledHeight);
+		
+		MapGroup.setAttribute("transform", "translate(" + BBoxLeft + "," + BBoxTop + ") scale(" + toNDecimalPlaces(Scale, 3) + ")");
+		
+		const GMazeMapGroup = document.getElementById("maze-map-group");
+		const GMazeMap      = document.getElementById("maze-map"      );
+		
+		GMazeMapGroup.insertBefore(createInsetBackground(BBoxLeft, BBoxTop, ScaledWidth, ScaledHeight), GMazeMap);
+		GMazeMap.appendChild(MapGroup);
+		GMazeMapGroup.appendChild(createInsetBorders(BBoxLeft, BBoxTop, ScaledWidth, ScaledHeight, 10));
+	}
+	
+	function getMapGroup()   { return MapGroup;          }
+	function getCellSize()   { return WallSegmentLength; }
+	function getCellCountX() { return CellCountX;        }
+	function getCellCountY() { return CellCountY;        }
+	function getBBox()       { return BBox;              }
+	
+	function getCell
+	(
+		X,	//	int
+		Y	//	int
+	)
+	{
+		if (X >= 0 && X < CellCountX && Y >= 0 && Y < CellCountY)
+			return Grid[Y][X];
+		
+		return null;
+	}
+}
+
+
+function PlayerList(MazeBBox) {
+	
+	const FontSizeFraction    = 0.8;	//	Ratio of row height to font size.
+	const BaselineFraction    = 0.8;	//	Amount of a line text *above* the baseline.
+//	const FontEnToHeightRatio = 0.54;
+//	var FontExFraction    = 1.1;	//	Ratio of character width to line length.
+	const FontDigitWidthToHeightRatio = 0.65;	//	Ratio of digit character width to line height.
+//	var ColumnsGap        = 5;
+//	var RowsGap           = 1;
+	
+	const ColCount = 2;
+	const RowCount = 10;
+	var RowHeight;
+	var FontSize;
+	var BBox;
+	var Scores;
+	var Names;
+	var Colors;
+	var PrevSerialNo = -1;
+	
+	this.getBBox       = getBBox;
+	this.setPlayerList = setPlayerList;
+	
+	createGraphic();
+	
+	function createGraphic() {
+		
+		const Top    = MazeBBox.Y + MazeBBox.Height + 60;
+		const Left   = MazeBBox.X;
+		const Width  = MazeBBox.Width;
+		const Height = 400 - Top;	//	400 is the bottom coordinate of the 3D maze view.
+		
+		const GPlayersGroup = document.getElementById("players-group");
+		const GPlayersList  = document.getElementById("players-list" );
+		
+		GPlayersGroup.insertBefore(createInsetBackground(Left, Top, Width, Height), GPlayersList);
+		GPlayersGroup.appendChild(createInsetBorders(Left, Top, Width, Height, 10));
+		
+		BBox = new Rectangle(Left, Top, Width, Height);
+		
+	//	Create the columns of text items.
+		
+		createTextRowsAndColumns(new Rectangle(BBox.X, BBox.Y + 1, BBox.Width, BBox.Height - 1).insetRect(5, 5), GPlayersList);
+	}
+	
+	function createTextRowsAndColumns
+	(
+		BBox,			//	Bounding box within which the rows and columns should be defined.
+		GPlayersList	//	DOM element with id "players-list".
+	)
+	{
+		RowHeight = BBox.Height / RowCount;
+		
+		var   RowBaseline = BBox.Y + RowHeight * BaselineFraction;
+		var   RowIndex;
+		const ColWidth  = BBox.Width / ColCount;
+		var   ColLeft     = BBox.X;
+		var   ColRight    = BBox.X + BBox.Width - RowHeight * FontDigitWidthToHeightRatio;	//	Make the right edge one character less than the left edge of the next column.
+		var   ColIndex;
+		var   ClipPathElem;
+		var   ClipRectElem;
+		var   ColGroupElem;
+		var   PlayerIndex = 0;
+		const CircleRadius = (RowHeight * FontSizeFraction) / 2;
+		var   ColorElem;
+		var   TextElem;
+		var   TSpanElem;
+		
+		FontSize = RowHeight * FontSizeFraction;
+		
+		Scores = new Array(ColCount * RowCount);
+		Names  = new Array(ColCount * RowCount);
+		Colors = new Array(ColCount * RowCount);
+		
+		for (ColIndex = 0; ColIndex < ColCount; ColIndex++) {
+			
+			RowBaseline = BBox.Y + RowHeight * BaselineFraction;
+			
+			ClipPathElem = document.createElementNS("http://www.w3.org/2000/svg", "clipPath");
+			ClipPathElem.setAttribute("id", "column-" + ColIndex + "-clip");
+			
+			ClipRectElem = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+			ClipRectElem.setAttribute("x",      ColLeft           );
+			ClipRectElem.setAttribute("y",      BBox.Y            );
+			ClipRectElem.setAttribute("width",  ColRight - ColLeft);
+			ClipRectElem.setAttribute("height", BBox.Height       );
+			
+			ClipPathElem.appendChild(ClipRectElem);
+			GPlayersList.appendChild(ClipPathElem);
+			
+			ColGroupElem = document.createElementNS("http://www.w3.org/2000/svg", "g");
+			ColGroupElem.setAttribute("clip-path", "url(#column-" + ColIndex + "-clip)");
+			
+			for (RowIndex = 0; RowIndex < RowCount; RowIndex++) {
+				
+				ColorElem = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+				ColorElem.setAttribute("cy",           RowBaseline - CircleRadius);
+				ColorElem.setAttribute("cx",           ColLeft     + CircleRadius * 2);
+				ColorElem.setAttribute("r",            CircleRadius);
+				ColorElem.setAttribute("fill",         "black");
+				ColorElem.setAttribute("stroke",       "black");
+				ColorElem.setAttribute("stroke-width", "1px");
+				ColorElem.style.display = "none";
+				
+				Colors[PlayerIndex] = ColorElem;
+				ColGroupElem.appendChild(ColorElem);
+				
+				TextElem = document.createElementNS("http://www.w3.org/2000/svg", "text");
+				TextElem.setAttribute("lengthAdjust", "spacingAndGlyphs");
+				TextElem.setAttribute("fontSize",     FontSize          );
+				TextElem.setAttribute("y",            RowBaseline       );
+				
+				TSpanElem = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+				TSpanElem.setAttribute("text-anchor", "end");
+				TSpanElem.setAttribute("x", ColLeft + (CircleRadius * 2) + 4 * RowHeight * FontDigitWidthToHeightRatio);
+				
+				Scores[PlayerIndex] = TextElem.appendChild(TSpanElem);
+				
+				TSpanElem = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+				TSpanElem.setAttribute("x", ColLeft + (CircleRadius * 2) + 5 * RowHeight * FontDigitWidthToHeightRatio);
+				
+				Names[PlayerIndex] = TextElem.appendChild(TSpanElem);
+				
+				ColGroupElem.appendChild(TextElem);
+				
+			//	Prepare for next iteration.
+				
+				PlayerIndex++;
+				RowBaseline += RowHeight;
+			}
+			
+			GPlayersList.appendChild(ColGroupElem);
+			
+		//	Setup for next iteration.
+			
+			ColLeft  += ColWidth;
+			ColRight += ColWidth;
+		}
+	}
+	
+	function getBBox() {
+		return BBox;	
+	}
+	
+	function setPlayerList(XMLPlayerList) {
+		const NewSerialNo = parseInt(XMLPlayerList.getAttribute("serial-no"));
+		
+		if (NewSerialNo > PrevSerialNo) {
+			
+			PrevSerialNo = NewSerialNo;
+			
+			const PlayerRecords = XMLPlayerList.getElementsByTagName("player");
+			var   PlayerIndex;
+			var   Player;
+			var   PlayerName;
+			var   PlayerScore;
+			var   PlayerColor;
+			var   ColorCircle;
+			var   ScoreTSpan;
+			var   NameTSpan;
+			
+			for (PlayerIndex = 0; PlayerIndex < PlayerRecords.length; PlayerIndex++) {
+					
+				Player      = PlayerRecords[PlayerIndex];
+				PlayerName  = Player.getElementsByTagName("name"     )[0].textContent;
+				PlayerScore = Player.getElementsByTagName("score"    )[0].textContent;
+				PlayerColor = Player.getElementsByTagName("eye-color")[0].textContent;
+				
+				ColorCircle = Colors[PlayerIndex];
+				ColorCircle.setAttribute("fill", PlayerColor);
+				ColorCircle.style.display = 'inherit';
+				
+				ScoreTSpan = Scores[PlayerIndex];
+				ScoreTSpan.setAttribute("textLength", toNDecimalPlaces(PlayerScore.length * RowHeight * FontDigitWidthToHeightRatio, 3));
+				removeAllChildren(ScoreTSpan);
+				ScoreTSpan.appendChild(document.createTextNode(PlayerScore));
+				
+				NameTSpan = Names[PlayerIndex];
+//				NameTSpan.setAttribute("textLength", toNDecimalPlaces(PlayerName.length * RowHeight * FontEnToHeightRatio, 3));
+				removeAllChildren(NameTSpan);
+				NameTSpan.appendChild(document.createTextNode(PlayerName));
+			}
+			
+			for (; PlayerIndex < Scores.length; PlayerIndex++) {
+				
+				Colors[PlayerIndex].style.display = "none";
+				removeAllChildren(Scores[PlayerIndex]);
+				removeAllChildren(Names[PlayerIndex]);
+			}
+		}
+	}
+}
+
+
+function createInsetBackground
+(
+	BoxLeft, 		//	AKA "X" - number.
+	BoxTop, 		//	AKA "Y" - number.
+	BoxWidth, 		//	number.
+	BoxHeight 		//	number.
+)
+{
+	const BackgroundRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+		
+	BackgroundRect.setAttribute("x",      BoxLeft);
+	BackgroundRect.setAttribute("y",      BoxTop);
+	BackgroundRect.setAttribute("width",  BoxWidth);
+	BackgroundRect.setAttribute("height", BoxHeight);
+	BackgroundRect.setAttribute("class",  "inset-background");
+	
+	return BackgroundRect;
+}
+
+
+function createInsetBorders
+(
+	BoxLeft, 		//	AKA "X" - number.
+	BoxTop, 		//	AKA "Y" - number.
+	BoxWidth, 		//	number.
+	BoxHeight, 		//	number.
+	BorderSize		//	int
+)
+{
+	const TopBorder = document.createElementNS("http://www.w3.org/2000/svg", "path");
+	
+	TopBorder.setAttribute("class", "inset-border-shadow");
+	TopBorder.setAttribute(
+		"d", 
+		"M" + toNDecimalPlaces(BoxLeft - BorderSize, 3) + "," + toNDecimalPlaces(BoxTop - BorderSize, 3) + 
+		"h" + toNDecimalPlaces(BoxWidth + BorderSize * 2, 3) +
+		"l" + -BorderSize + "," + BorderSize + 
+		"h" + toNDecimalPlaces(-BoxWidth, 3) + 
+		"z"
+	);
+	
+	const BottomBorder = document.createElementNS("http://www.w3.org/2000/svg", "path");
+	
+	BottomBorder.setAttribute("class", "inset-border-light");
+	BottomBorder.setAttribute(
+		"d", 
+		"M" + toNDecimalPlaces(BoxLeft - BorderSize, 3) + "," + toNDecimalPlaces(BoxTop + BoxHeight + BorderSize, 3) + 
+		"h" + toNDecimalPlaces(BoxWidth + BorderSize * 2, 3) +
+		"l" + -BorderSize + "," + -BorderSize + 
+		"h" + toNDecimalPlaces(-BoxWidth, 3) + 
+		"z"
+	);
+	
+	const LeftBorder = document.createElementNS("http://www.w3.org/2000/svg", "path");
+	
+	LeftBorder.setAttribute("class", "inset-border-shadow");
+	LeftBorder.setAttribute(
+		"d", 
+		"M" + toNDecimalPlaces(BoxLeft - BorderSize, 3) + "," + toNDecimalPlaces(BoxTop - BorderSize, 3) + 
+		"v" + toNDecimalPlaces(BoxHeight + BorderSize * 2, 3) +
+		"l" + BorderSize + "," + -BorderSize + 
+		"v" + toNDecimalPlaces(-BoxHeight, 3) + 
+		"z"
+	);
+	
+	const RightBorder = document.createElementNS("http://www.w3.org/2000/svg", "path");
+	
+	RightBorder.setAttribute("class", "inset-border-light");
+	RightBorder.setAttribute(
+		"d", 
+		"M" + toNDecimalPlaces(BoxLeft + BoxWidth + BorderSize, 3) + "," + toNDecimalPlaces(BoxTop - BorderSize, 3) + 
+		"v" + toNDecimalPlaces(BoxHeight + BorderSize * 2, 3) +
+		"l" + -BorderSize + "," + -BorderSize + 
+		"v" + toNDecimalPlaces(-BoxHeight, 3) + 
+		"z"
+	);
+	
+	const BorderGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+	
+	BorderGroup.appendChild(TopBorder   );
+	BorderGroup.appendChild(BottomBorder);
+	BorderGroup.appendChild(LeftBorder  );
+	BorderGroup.appendChild(RightBorder );
+	
+	return BorderGroup;
+}
+
+
+function toNDecimalPlaces(Value, DecimalPlaces) {
+	
+	if (DecimalPlaces == 0)
+		return Math.round(Value);
+	
+	const Multiplier = Math.pow(10, DecimalPlaces);
+		
+	return Math.round(Value * Multiplier) / Multiplier;
+}
+
+
+function Cell() {
+	
+	this.IsWall        = false;
+	this.IsTeleport    = false;
+	
+	this.HasTopWall    = false;
+	this.HasLeftWall   = false;
+	this.HasRightWall  = false;
+	this.HasBottomWall = false;
+	
+	this.HasWalls      = [ false, false, false, false ];
+}
+
+Cell.prototype = {
+	
+	init : function
+	(
+		IsWall,		//	boolean - both cannot be true.
+		IsTeleport	//	boolean - both cannot be true.
+	) 
+	{
+		if (IsWall && IsTeleport)
+			throw "No cell in the maze can be both a wall and a teleport.";
+		
+		this.IsWall     = IsWall;
+		this.IsTeleport = IsTeleport;
+		return this;
+	},
+	
+	initWalls : function
+	(
+		WallAbove,
+		WallLeft,
+		WallRight,
+		WallBelow
+	)
+	{
+		this.HasWalls[kDirectionUp.StandardIndex   ] = this.HasTopWall    = WallAbove;
+		this.HasWalls[kDirectionLeft.StandardIndex ] = this.HasLeftWall   = WallLeft;
+		this.HasWalls[kDirectionRight.StandardIndex] = this.HasRightWall  = WallRight;
+		this.HasWalls[kDirectionDown.StandardIndex ] = this.HasBottomWall = WallBelow;
+	},
+	
+	canGoInDirection : function
+	(
+		TestDirection	//	Direction object.
+	)
+	{
+		return !this.HasWalls[TestDirection.StandardIndex];
+	},
+	
+	hasFacingWall : function
+	(
+		TestDirection	//	Direction object.
+	)
+	{
+		return this.HasWalls[TestDirection.StandardIndex];
+	},
+	
+	hasLeftWall : function
+	(
+		TestDirection	//	Direction object.
+	)
+	{
+		switch (TestDirection.StandardIndex) {
+		
+			case kDirectionUp.StandardIndex:	//	Top.
+				return this.HasLeftWall;
+		
+			case kDirectionLeft.StandardIndex:	//	Left.
+				return this.HasBottomWall;
+		
+			case kDirectionRight.StandardIndex:	//	Right.
+				return this.HasTopWall;
+			
+			case kDirectionDown.StandardIndex:	//	Bottom.
+				return this.HasRightWall;
+		}
+	},
+	
+	hasRightWall : function
+	(
+		TestDirection	//	Direction object.
+	)
+	{
+		switch (TestDirection.StandardIndex) {
+		
+			case kDirectionUp.StandardIndex:	//	Top.
+				return this.HasRightWall;
+		
+			case kDirectionLeft.StandardIndex:	//	Left.
+				return this.HasTopWall;
+		
+			case kDirectionRight.StandardIndex:	//	Right.
+				return this.HasBottomWall;
+			
+			case kDirectionDown.StandardIndex:	//	Bottom.
+				return this.HasLeftWall;
+		}
+	}
+};
+
+
+function Rectangle(X, Y, Width, Height) {
+	
+	this.X      = X;
+	this.Y      = Y;
+	this.Width  = Width;
+	this.Height = Height;
+}
+
+
+Rectangle.prototype = {
+	
+	insetRect : function(XInset, YInset) {
+		
+		this.X      += XInset;
+		this.Y      += YInset;
+		this.Width  -= XInset * 2;
+		this.Height -= YInset * 2;
+		
+		return this;
+	},
+	
+	addRectangle : function(OtherRect) {
+		
+		const Right  = this.X + this.Width;
+		const Bottom = this.Y + this.Height;
+		
+		const OtherRight  = OtherRect.X + OtherRect.Width;
+		const OtherBottom = OtherRect.Y + OtherRect.Height;
+		
+		if (this.X > OtherRect.X)
+			this.X = OtherRect.X;
+		if (this.Y > OtherRect.Y)
+			this.Y = OtherRect.Y;
+		
+		if (Right  < OtherRight)
+			this.Width += OtherRight - Right;
+		if (Bottom < OtherBottom)
+			this.Height += OtherBottom - Bottom;
+		
+		return this;
+	}
+};
+
+
+function getElementByTagNamePath
+(
+	XMLDoc,		//	XML document
+	TagPath		//	Space-separated list of tag names.
+)
+{
+	const Elements = getElementsByTagNamePath(XMLDoc, TagPath);
+	if (Elements.length != 1)
+		throw "There are " + Elements.length + " items matched by the path \"" + TagPath + "\". There should be one.";
+	
+	return Elements[0];
+}
+
+
+function getElementsByTagNamePath
+(
+	XMLDoc,		//	XML document
+	TagPath		//	Space-separated list of tag names.
+)
+{
+	const Elements = getOptionalElementsByTagNamePath(XMLDoc, TagPath);
+	if (Elements.length == 0) {
+		const TagNames = new String(TagPath).split(' ');
+		
+		throw "Failed to find final component \"" + TagNames[TagNames.length - 1] + "\" of path \"" + TagPath + "\". " + XMLDoc;
+	}
+	
+	return Elements;
+}
+
+
+function getOptionalElementByTagNamePath
+(
+	XMLDoc,		//	XML document
+	TagPath		//	Space-separated list of tag names.
+)
+{
+	const Elements = getOptionalElementsByTagNamePath(XMLDoc, TagPath);
+	if (Elements.length == 0)
+		return undefined;
+	if (Elements.length != 1)
+		throw "There are " + Elements.length + " items matched by the path \"" + TagPath + "\". There should be no more than one.";
+	
+	return Elements[0];
+}
+
+
+function getOptionalElementsByTagNamePath
+(
+	XMLDoc,		//	XML document
+	TagPath		//	Space-separated list of tag names.
+)
+{
+	if (XMLDoc == null)
+		return [];
+	
+	const TagNames      = new String(TagPath).split(' ');
+	const TagIndexLimit = TagNames.length - 1;
+	var ParentNode      = XMLDoc.firstChild;
+	var Elements;
+	var Index;
+	
+	for (Index = 0; Index < TagIndexLimit; Index++) {
+		
+	//	See: <http://developer.mozilla.org/En/DOM:element.getElementsByTagName>.
+		
+		Elements = getChildrenOfParent(ParentNode, TagNames[Index]);
+		if (Elements.length != 1)
+			throw "There are " + Elements.length + " items matching the name at index " + Index + " in the path \"" + TagPath + "\". There should be one.";
+		
+		ParentNode = Elements[0];
+	}
+	
+	Elements = getChildrenOfParent(ParentNode, TagNames[Index]);
+//	if (Elements.length == 0)
+//		throw "Failed to find final component \"" + TagNames[Index] + "\" of path \"" + TagPath + "\". Element type: " + typeof(Element);
+	
+	return Elements;
+}
+
+
+function getChildrenOfParent
+(
+	ParentNode,		//	DOM Node.
+	ChildTagName	//	string.
+)
+{	
+	const Children = [];
+	
+	if (ParentNode.nodeType == 1) {	//	Make sure ParentNode is a DOM Element, as opposed to, say, DOM Text.
+		const Descendants = ParentNode.getElementsByTagName(ChildTagName);
+		var   Descendant;
+		
+		for (var Index = 0; Index < Descendants.length; Index++) {
+			
+			Descendant = Descendants[Index];
+			if (Descendant.parentNode == ParentNode)
+				Children.push(Descendant);
+		}
+	}
+	
+	return Children;
+}
+
+
+function removeAllChildren(Parent) {
+	const Items = [];
+	var   Child = Parent.firstChild;
+	
+	while (Child !== undefined && Child != null) {	//	Is the test for "undefined" necessary? I'm not sure.
+		
+		Items.push(Child);
+		
+		Child = Child.nextSibling;
+	}
+	
+//	This method only works reliably when we remove the items in the Items array from last-to-first. Progressing 
+//	from first-to-last often results in a failure to remove some of the children.
+	
+	for (var Index = Items.length; --Index >= 0; )
+		Parent.removeChild(Items[Index]);		
+}
+
+
+function handleKeyDownEvents(Event) {
+	
+//	See <http://www.w3.org/TR/DOM-Level-3-Events/events.html#Events-KeyboardEvents-Interfaces>,
+//	and <http://www.w3.org/TR/DOM-Level-3-Events/keyset.html#KeySet-Set>.
+//	More importantly, see: <http://unixpapa.com/js/key.html>.
+	
+	var KeyID = Event.keyIdentifier;
+	if (KeyID === undefined) {
+		
+		KeyID = Event.keyCode;
+		if (KeyID === undefined) {
+			
+			KeyID = Event.which;
+			if (KeyID === undefined) {
+				
+				KeyID = Event.charCode;
+				if (KeyID === undefined) {
+					
+					throw "Key could not be identified due to Javascript brain damage. Event type: " + typeof(Event) + ". " + Event;
+				}
+			}
+		}
+	}
+	
+	var Handled = false;
+	
+	switch (KeyID) { 
+		
+		case "U+0037":	//	Key identifier for the "7" key. (DOM Level 3, Appendix A, Keyboard events and key identifiers.)
+		case "U+0045":	//	Key identifier for the "E" key. (DOM Level 3, Appendix A, Keyboard events and key identifiers.)
+		case "U+0053":	//	Key identifier for the "S" key. (DOM Level 3, Appendix A, Keyboard events and key identifiers.)
+		case 69:		//	Decimal character code produced by the "e" key on the keyboard. (Firefox)
+		case 83:		//	Decimal character code produced by the "s" key on the keyboard. (Firefox)
+		case 103:		//	Decimal character code produced by the "7" key on the keypad. (Firefox)
+				
+			Game.peekLeft();
+			Handled = true;
+			break;
+	
+		case "Up":		//	Key identifier for the up arrow key. (DOM Level 3, Appendix A, Keyboard events and key identifiers.)
+		case "U+0038":	//	Key identifier for the "8" key. (DOM Level 3, Appendix A, Keyboard events and key identifiers.)
+		case "U+0046":	//	Key identifier for the "F" key. (DOM Level 3, Appendix A, Keyboard events and key identifiers.)
+		case "U+0052":	//	Key identifier for the "R" key. (DOM Level 3, Appendix A, Keyboard events and key identifiers.)
+		case 38:		//	Decimal character code produced by the up arrow key. (Firefox)
+		case 70:		//	Decimal character code produced by the "f" key on the keyboard. (Firefox)
+		case 82:		//	Decimal character code produced by the "r" key on the keyboard. (Firefox)
+		case 104:		//	Decimal character code produced by the "8" key on the keypad. (Firefox)
+				
+			Game.moveForward();
+			Handled = true;
+			break;
+		
+		case "U+0039":	//	Key identifier for the "9" key. (DOM Level 3, Appendix A, Keyboard events and key identifiers.)
+		case "U+0048":	//	Key identifier for the "H" key. (DOM Level 3, Appendix A, Keyboard events and key identifiers.)
+		case "U+0054":	//	Key identifier for the "T" key. (DOM Level 3, Appendix A, Keyboard events and key identifiers.)
+		case 72:		//	Decimal character code produced by the "h" key on the keyboard. (Firefox)
+		case 84:		//	Decimal character code produced by the "t" key on the keyboard. (Firefox)
+		case 105:		//	Decimal character code produced by the "9" key on the keypad. (Firefox)
+			
+			Game.peekRight();
+			Handled = true;
+			break;
+	
+		case "Left":	//	Key identifier for the left arrow key. (DOM Level 3, Appendix A, Keyboard events and key identifiers.)
+		case "U+0034":	//	Key identifier for the "4" key. (DOM Level 3, Appendix A, Keyboard events and key identifiers.)
+		case "U+0044":	//	Key identifier for the "D" key. (DOM Level 3, Appendix A, Keyboard events and key identifiers.)
+		case 37:		//	Decimal character code produced by the left arrow key. (Firefox)
+		case 68:		//	Decimal character code produced by the "d" key on the keyboard. (Firefox)
+		case 100:		//	Decimal character code produced by the "4" key on the keypad. (Firefox)
+			
+			Game.rotateCounterClockwise();
+			Handled = true;
+			break;
+	
+		case "Right":	//	Key identifier for the right arrow key. (DOM Level 3, Appendix A, Keyboard events and key identifiers.)
+		case "U+0036":	//	Key identifier for the "6" key. (DOM Level 3, Appendix A, Keyboard events and key identifiers.)
+		case "U+0047":	//	Key identifier for the "G" key. (DOM Level 3, Appendix A, Keyboard events and key identifiers.)
+		case 39:		//	Decimal character code produced by the right arrow key. (Firefox)
+		case 71:		//	Decimal character code produced by the "g" key on the keyboard. (Firefox)
+		case 102:		//	Decimal character code produced by the "6" key on the keypad. (Firefox)
+			
+			Game.rotateClockwise();
+			Handled = true;
+			break;
+	
+		case "Down":	//	Key identifier for the down arrow key. (DOM Level 3, Appendix A, Keyboard events and key identifiers.)
+		case "U+0035":	//	Key identifier for the "5" key. (DOM Level 3, Appendix A, Keyboard events and key identifiers.)
+		case "U+0056":	//	Key identifier for the "V" key. (DOM Level 3, Appendix A, Keyboard events and key identifiers.)
+		case 40:		//	Decimal character code produced by the down arrow key. (Firefox)
+		case 86:		//	Decimal character code produced by the "v" key on the keyboard. (Firefox)
+		case 101:		//	Decimal character code produced by the "5" key on the keypad. (Firefox)
+				
+			Game.moveBackward();
+			Handled = true;
+			break;
+		
+		case "U+0020":	//	Key identifier for the space bar. (DOM Level 3, Appendix A, Keyboard events and key identifiers.)
+		case "U+0030":	//	Key identifier for the "0" key. (DOM Level 3, Appendix A, Keyboard events and key identifiers.)
+		case 32:		//	Decimal character code for the space character. (Firefox)
+		case 96:		//	Decimal character code produced by the "0" key on the keypad. (Firefox)
+				
+			Game.shoot();
+			Handled = true;
+			break;
+		
+		case "Enter":	//	Key identifier for the enter key. (DOM Level 3, Appendix A, Keyboard events and key identifiers.)
+		case "U+0041":	//	Key identifier for the "A" key. (DOM Level 3, Appendix A, Keyboard events and key identifiers.)
+		case 65:		//	Decimal character code produced by the "a" key on the keyboard. (Firefox)
+		case 13:		//	Decimal character code for the enter key. (Firefox)
+				
+			Game.rotate180();
+			Handled = true;
+			break;
+	
+//		default:
+//			
+//			if (console !== undefined)
+//				console.info("Key \"%d\" not recognized due to Javascript brain damage. Event type: %s. %s", KeyID, typeof(Event), Event);
+	}
+	
+	return !Handled;
+}
+
+
+function LEDDisplayDriver
+(
+	ID	//	String
+)
+{
+	const Group    = document.getElementById(ID);
+	const Elements = Group.getElementsByTagName("path");
+	
+	const Digits = [
+		[ // 0
+			'inherit',
+			'inherit',
+			'inherit',
+			'none',
+			'inherit',
+			'inherit',
+			'inherit'
+		],
+		[ // 1
+			'none',
+			'none',
+			'inherit',
+			'none',
+			'none',
+			'inherit',
+			'none'
+		],
+		[ // 2
+			'inherit',
+			'none',
+			'inherit',
+			'inherit',
+			'inherit',
+			'none',
+			'inherit'
+		],
+		[ // 3
+			'inherit',
+			'none',
+			'inherit',
+			'inherit',
+			'none',
+			'inherit',
+			'inherit'
+		],
+		[ // 4
+			'none',
+			'inherit',
+			'inherit',
+			'inherit',
+			'none',
+			'inherit',
+			'none'
+		],
+		[ // 5
+			'inherit',
+			'inherit',
+			'none',
+			'inherit',
+			'none',
+			'inherit',
+			'inherit'
+		],
+		[ // 6
+			'none',
+			'inherit',
+			'none',
+			'inherit',
+			'inherit',
+			'inherit',
+			'inherit'
+		],
+		[ // 7
+			'inherit',
+			'none',
+			'inherit',
+			'none',
+			'none',
+			'inherit',
+			'none'
+		],
+		[ // 8
+			'inherit',
+			'inherit',
+			'inherit',
+			'inherit',
+			'inherit',
+			'inherit',
+			'inherit'
+		],
+		[ // 9
+			'inherit',
+			'inherit',
+			'inherit',
+			'inherit',
+			'none',
+			'inherit',
+			'none'
+		],
+		[ // - 
+			'none',
+			'none',
+			'none',
+			'inherit',
+			'none',
+			'none',
+			'none'
+		],
+	];
+	
+	this.set = set;
+	
+	function set
+	(
+		Char	//	int
+	)
+	{
+		var Display;	//	String array.
+		
+		if (Char >= 0 && Char <= 9)
+			Display = Digits[Char];
+		else if (Char >= '0' && Char <= '9')
+			Display = Digits[Char - '0'];
+		else
+			Display = Digits[10];
+		
+		for (var Index = 0; Index < Elements.length; Index++)
+			Elements[Index].style.display = Display[Index];
+	}
+}
+
+function GameStartCountdown(Value) {
+	
+	const Digit1 = new LEDDisplayDriver("digit-1");
+	const Digit2 = new LEDDisplayDriver("digit-2");
+	var   IntervalID;
+	
+	this.decrement = decrement;
+	
+	showValue();
+	
+	IntervalID = window.setInterval(decrement, 1000);
+	
+	function decrement() {
+		
+		if (Value > 0) {
+			
+			Value--;
+			
+		} else {
+			
+			window.clearInterval(IntervalID);
+			requestGameOverInformation();
+		}
+		
+		showValue();
+	}
+	
+	function showValue() {
+		
+		Digit1.set(Math.floor(Value / 10));
+		Digit2.set(Value % 10);
+	}
+}
+
+function requestGameOverInformation() {
+	makeRequestLow(getGameURL() + "mw/?op=get-game-over-info", gameStartCounterResponseProc);
+}
+
+function getGameURL() {
+	var Path             = window.location.pathname;
+	const LastSlashIndex = Path.lastIndexOf('/');
+	
+	if (LastSlashIndex > 0)
+		Path = Path.substring(0, LastSlashIndex + 1);
+	
+	return window.location.protocol + "//" + window.location.host + Path;
+}
+
+function gameStartCounterResponseProc
+(
+	HTTPRequest		
+) 
+{
+	if (HTTPRequest.readyState == 4) {
+			
+		if (HTTPRequest.status == 200) {
+			const XML = HTTPRequest.responseXML;
+			
+			if (XML.getElementsByTagName("game-underway").length != 0) {
+				
+				Game.join();
+				
+			} else {
+				
+				new GameStartCountdown(window.parseInt(XML.getElementsByTagName("game-starts-seconds")[0].textContent));
+			}
+			
+		} else {
+			alert('There was a problem with the request. Status: ' + HTTPRequest.status + ". Message: " + HTTPRequest.responseText);
+		}
+	}
+}
+
+function makeRequestLow
+(
+	URL,
+	CompletionProc,
+	ErrorProc,		//	Will receive an XMLHttpRequestProgressEvent parameter when invoked.
+	TimeoutMs
+) 
+{
+	var httpRequest;
+
+	if (window.XMLHttpRequest) { // Mozilla, Safari, ...
+			
+	//	See <http://developer.mozilla.org/En/XMLHttpRequest>:
+			
+		httpRequest = new XMLHttpRequest();
+		if (httpRequest.overrideMimeType)
+			httpRequest.overrideMimeType('text/xml');
+			
+	} else if (window.ActiveXObject) { // IE
+			
+		try {
+			httpRequest = new ActiveXObject("Msxml2.XMLHTTP");
+		} catch (e) {
+			try {
+				httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
+			} catch (e) {}
+		}
+	}
+
+	if (!httpRequest)
+		throw('Cannot create an XMLHttpRequest instance.');
+		
+	httpRequest.onreadystatechange = function() { CompletionProc(httpRequest); };	//	function() { alertContents(httpRequest); };
+		
+	if (ErrorProc !== undefined && ErrorProc != null)
+		httpRequest.onerror = ErrorProc;
+	if (TimeoutMs !== undefined)
+		httpRequest.timeout = TimeoutMs;
+			
+	httpRequest.open('GET', URL, true);
+		
+//	if (httpRequest.channel !== undefined)
+//		httpRequest.channel.loadFlags |= Components.interfaces.nsIRequest.LOAD_BYPASS_CACHE;
+		
+	httpRequest.setRequestHeader('Content-Type',      'application/x-www-form-urlencoded');
+	httpRequest.setRequestHeader('Cache-Control',     'no-cache');
+	httpRequest.setRequestHeader('If-Modified-Since', 'Wed, 1 Jan 1900 00:00:00 GMT');	//	Required to make Safari work. See <http://www.bitterpill.org/bp/2005-06/safari-xmlhttprequest-undefine.html>
+	httpRequest.send(null);
+		
+	return httpRequest;
+}
+	
+]]></script>
+
+
+<script id='startup-script' type='text/ecmascript'><![CDATA[
+
+//	Do not alter this code without also altering, if necessary, the regular expression Main.kMazeWarsInvocationPattern.
+
+const Game = new MazeWars(GameURL, MyPlayerID, MyPlayerName);
+const Root = document.getElementById("root");
+
+Game.waitForGameToStart();
+
+]]></script>
+
+
+</svg>

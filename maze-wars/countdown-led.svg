@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg id='root' width='100%' height='100%' viewBox="-280,140,560,480" zoomAndPan='magnify' contentScriptType='text/ecmascript' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<!--
+	Maze Wars SVG, by Chris W. Johnson, is a web-based, first-person shooter ultimately inspired by the famous game 
+	"Maze War" created by Steve Colley, Howard Palmer and Greg Thompson. 
+	
+	Copyright (C) 2008-2009 Chris W. Johnson. <http://chriswjohnson.blogspot.com/>
+	
+	Maze Wars SVG is free software: you can redistribute it and/or modify it under the terms of the GNU General Public 
+	License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any 
+	later version.
+	
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
+	details.
+	
+	You should have received a copy of the GNU General Public License along with this program. If not, see 
+	<http://www.gnu.org/licenses/>.
+-->
+
+<defs>
+	<style type='text/css'><![CDATA[
+		
+		svg {
+			background-color: #404040;
+		}
+		
+		*.digit path {
+			fill: #e20000;
+		}
+	
+	]]></style>
+</defs>
+
+<g class='digit' id='digit-1' transform='translate(-395,0) skewX(-5)'>
+	<path d="M216,208 L360,208 L396.045,172 L180,172 Z"/>
+	<path d="M212,355.5 L212.045,211.5 L176.045,175.5 L176.045,375.5 L192.414,375.5"/>
+	<path d="M364.09,355.125 L364.045,211.125 L400.045,175.125 L400.045,375.125 L383.675,375.125"/>
+	<path d="M214,360 L362.545,360 L380.045,378 L362.545,396 L214,396 L195.5,378 Z"/>
+	<path d="M212,401.25 L212.045,545.25 L176.045,581.25 L176.045,381.25 L192.414,381.25"/>
+	<path d="M364.09,400.875 L364.045,544.875 L400.045,580.875 L400.045,380.875 L383.675,380.875"/>
+	<path d="M216,549 L360,549 L396.045,585 L180,585 Z"/>
+</g>
+
+<g class='digit' id='digit-2' transform='translate(-115,0) skewX(-5)'>
+	<path d="M216,208 L360,208 L396.045,172 L180,172 Z"/>
+	<path d="M212,355.5 L212.045,211.5 L176.045,175.5 L176.045,375.5 L192.414,375.5"/>
+	<path d="M364.09,355.125 L364.045,211.125 L400.045,175.125 L400.045,375.125 L383.675,375.125"/>
+	<path d="M214,360 L362.545,360 L380.045,378 L362.545,396 L214,396 L195.5,378 Z"/>
+	<path d="M212,401.25 L212.045,545.25 L176.045,581.25 L176.045,381.25 L192.414,381.25"/>
+	<path d="M364.09,400.875 L364.045,544.875 L400.045,580.875 L400.045,380.875 L383.675,380.875"/>
+	<path d="M216,549 L360,549 L396.045,585 L180,585 Z"/>
+</g>
+
+<script type='text/ecmascript'><![CDATA[
+
+function LEDDisplayDriver
+(
+	ID	//	String
+)
+{
+	const Group    = document.getElementById(ID);
+	const Elements = Group.getElementsByTagName("path");
+	
+	const Digits = [
+		[ // 0
+			'inherit',
+			'inherit',
+			'inherit',
+			'none',
+			'inherit',
+			'inherit',
+			'inherit'
+		],
+		[ // 1
+			'none',
+			'none',
+			'inherit',
+			'none',
+			'none',
+			'inherit',
+			'none'
+		],
+		[ // 2
+			'inherit',
+			'none',
+			'inherit',
+			'inherit',
+			'inherit',
+			'none',
+			'inherit'
+		],
+		[ // 3
+			'inherit',
+			'none',
+			'inherit',
+			'inherit',
+			'none',
+			'inherit',
+			'inherit'
+		],
+		[ // 4
+			'none',
+			'inherit',
+			'inherit',
+			'inherit',
+			'none',
+			'inherit',
+			'none'
+		],
+		[ // 5
+			'inherit',
+			'inherit',
+			'none',
+			'inherit',
+			'none',
+			'inherit',
+			'inherit'
+		],
+		[ // 6
+			'none',
+			'inherit',
+			'none',
+			'inherit',
+			'inherit',
+			'inherit',
+			'inherit'
+		],
+		[ // 7
+			'inherit',
+			'none',
+			'inherit',
+			'none',
+			'none',
+			'inherit',
+			'none'
+		],
+		[ // 8
+			'inherit',
+			'inherit',
+			'inherit',
+			'inherit',
+			'inherit',
+			'inherit',
+			'inherit'
+		],
+		[ // 9
+			'inherit',
+			'inherit',
+			'inherit',
+			'inherit',
+			'none',
+			'inherit',
+			'none'
+		],
+		[ // - 
+			'none',
+			'none',
+			'none',
+			'inherit',
+			'none',
+			'none',
+			'none'
+		],
+	];
+	
+	this.set = set;
+	
+	function set
+	(
+		Char	//	int
+	)
+	{
+		var Display;	//	String array.
+		
+		if (Char >= 0 && Char <= 9)
+			Display = Digits[Char];
+		else if (Char >= '0' && Char <= '9')
+			Display = Digits[Char - '0'];
+		else
+			Display = Digits[10];
+		
+		for (var Index = 0; Index < Elements.length; Index++)
+			Elements[Index].style.display = Display[Index];
+	}
+}
+
+var Counter;
+
+function Countdown(Value) {
+	
+	const Digit1 = new LEDDisplayDriver("digit-1");
+	const Digit2 = new LEDDisplayDriver("digit-2");
+	var IntervalID;
+	
+	this.decrement = decrement;
+	
+	showValue();
+	
+	IntervalID = window.setInterval("Counter.decrement()", 1000);
+	
+	function decrement() {
+		
+		if (Value > 0)
+			Value--;
+		else
+			window.clearInterval(IntervalID);
+		
+		showValue();
+	}
+	
+	function showValue() {
+		
+		Digit1.set(Math.floor(Value / 10));
+		Digit2.set(Value % 10);
+	}
+}
+
+function requestGameOverInformation() {
+	makeRequestLow(getGameURL() + "mw/?op=get-game-over-info", responseProc);
+}
+
+function getGameURL() {
+	var Path             = window.location.pathname;
+	const LastSlashIndex = Path.lastIndexOf('/');
+	
+	if (LastSlashIndex > 0)
+		Path = Path.substring(0, LastSlashIndex + 1);
+	
+	return window.location.protocol + "//" + window.location.host + Path;
+}
+
+function responseProc
+(
+	HTTPRequest		
+) 
+{
+	if (HTTPRequest.readyState == 4) {
+			
+		if (HTTPRequest.status == 200) {
+			const XML = HTTPRequest.responseXML;
+			
+			if (XML.getElementsByTagName("game-underway").length != 0) {
+				
+			//	GameOver = false;
+			//	alert("Game Underway");
+				
+			} else {
+				
+			//	GameOver = true;
+				Counter  = new Countdown(window.parseInt(XML.getElementsByTagName("game-starts-seconds")[0].textContent));
+			}
+			
+		} else {
+			alert('There was a problem with the request. Status: ' + HTTPRequest.status + ". Message: " + HTTPRequest.responseText);
+		}
+	}
+}
+
+function makeRequestLow
+(
+	URL,
+	CompletionProc,
+	ErrorProc,		//	Will receive an XMLHttpRequestProgressEvent parameter when invoked.
+	TimeoutMs
+) 
+{
+	var httpRequest;
+
+	if (window.XMLHttpRequest) { // Mozilla, Safari, ...
+			
+	//	See <http://developer.mozilla.org/En/XMLHttpRequest>:
+			
+		httpRequest = new XMLHttpRequest();
+		if (httpRequest.overrideMimeType)
+			httpRequest.overrideMimeType('text/xml');
+			
+	} else if (window.ActiveXObject) { // IE
+			
+		try {
+			httpRequest = new ActiveXObject("Msxml2.XMLHTTP");
+		} catch (e) {
+			try {
+				httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
+			} catch (e) {}
+		}
+	}
+
+	if (!httpRequest)
+		throw('Cannot create an XMLHttpRequest instance.');
+		
+	httpRequest.onreadystatechange = function() { CompletionProc(httpRequest); };	//	function() { alertContents(httpRequest); };
+		
+	if (ErrorProc !== undefined && ErrorProc != null)
+		httpRequest.onerror = ErrorProc;
+	if (TimeoutMs !== undefined)
+		httpRequest.timeout = TimeoutMs;
+			
+	httpRequest.open('GET', URL, true);
+		
+	httpRequest.setRequestHeader('Content-Type',      'application/x-www-form-urlencoded');
+	httpRequest.setRequestHeader('Cache-Control',     'no-cache');
+	httpRequest.setRequestHeader('If-Modified-Since', 'Wed, 1 Jan 1900 00:00:00 GMT');	//	Required to make Safari work. See <http://www.bitterpill.org/bp/2005-06/safari-xmlhttprequest-undefine.html>
+	httpRequest.send(null);
+		
+	return httpRequest;
+}
+
+
+requestGameOverInformation();
+
+
+]]></script>
+	
+</svg>

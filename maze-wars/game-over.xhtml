@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html 
+	PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+	<meta http-equiv="Content-Type" content='application/xhtml+xml; charset=UTF-8' />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<link rel="stylesheet" media="screen, print" type="text/css" title="Preferred" href="game-over.css" />
+	<title>Game Over</title>
+</head>
+<body>
+
+<!--
+	Maze Wars SVG, by Chris W. Johnson, is a web-based, first-person shooter ultimately inspired by the famous game 
+	"Maze War" created by Steve Colley, Howard Palmer and Greg Thompson. 
+	
+	Copyright (C) 2008-2009 Chris W. Johnson. <http://chriswjohnson.blogspot.com/>
+	
+	Maze Wars SVG is free software: you can redistribute it and/or modify it under the terms of the GNU General Public 
+	License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any 
+	later version.
+	
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
+	details.
+	
+	You should have received a copy of the GNU General Public License along with this program. If not, see 
+	<http://www.gnu.org/licenses/>.
+-->
+
+	<div class='content top'>
+		
+		<h1>Game Over</h1>
+		
+		<table id="layout">
+			<tbody>
+				<tr>
+					<td>
+						<table id="scores-table">
+							<thead>
+								<tr><td></td><td>Player</td><td>Kills</td><td>Bonuses</td><td>Deaths</td></tr>
+							</thead>
+							<tbody id="scores-body">
+								
+							</tbody>
+						</table>
+					</td>
+					<td class="counter-cell">
+						New Game Starts In:<br/>
+						<object type='image/svg+xml' data="countdown-led.svg" height="100%">You should see a countdown here.</object><br/>
+						Seconds
+					</td>
+				</tr>
+			</tbody>
+		
+		</table>
+		
+		<div id="sign-in">
+			<form action="/mazewars/" method="post">
+				<div><button type="submit" name="play" value="again">Play Again</button><input type="hidden" name="qwicap-charset" value="US-ASCII"/></div>
+			</form>
+		</div>
+		
+	</div>
+
+<script type="text/javascript">
+<![CDATA[
+
+
+function requestGameOverInformation() {
+	makeRequestLow(getGameURL() + "mw/?op=get-game-over-info", responseProc);
+}
+
+function getGameURL() {
+	var Path             = window.location.pathname;
+	const LastSlashIndex = Path.lastIndexOf('/');
+	
+	if (LastSlashIndex > 0)
+		Path = Path.substring(0, LastSlashIndex + 1);
+	
+	return window.location.protocol + "//" + window.location.host + Path;
+}
+
+function responseProc
+(
+	HTTPRequest		
+) 
+{
+	if (HTTPRequest.readyState == 4) {
+			
+		if (HTTPRequest.status == 200) {
+			const XML        = HTTPRequest.responseXML;			
+			const Players    = XML.getElementsByTagName("player");
+			const ScoresBody = document.getElementById("scores-body");
+			var Index;
+			
+			if (Players.length == 0) {
+				
+				alert("No Players!\n" + HTTPRequest.responseText);
+				alert("No Players!\n" + HTTPRequest.responseXML);
+			}
+			
+			for (Index = 0; Index < Players.length; Index++) {
+				var Player   = Players[Index];
+				var TR       = document.createElementNS("http://www.w3.org/1999/xhtml", "tr");
+				var TDColor  = document.createElementNS("http://www.w3.org/1999/xhtml", "td");
+				var TDName   = document.createElementNS("http://www.w3.org/1999/xhtml", "td");
+				var TDScore  = document.createElementNS("http://www.w3.org/1999/xhtml", "td");
+				var TDBonus  = document.createElementNS("http://www.w3.org/1999/xhtml", "td");
+				var TDDeaths = document.createElementNS("http://www.w3.org/1999/xhtml", "td");
+				
+				var ColorObj = document.createElementNS("http://www.w3.org/1999/xhtml", "object");
+				var CircleSVG = "<?xml version='1.0' encoding='UTF-8' standalone='no'?>" + 
+				"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">" + 
+				"<svg width='100%' height='100%' viewBox='-10 -10 20 20' zoomAndPan='magnify' version='1.1' xmlns='http://www.w3.org/2000/svg'>" + 
+				"<defs><style type='text/css'> svg { background-color: #404040; } </style></defs>" + //	todo Note: specifying the background color explicitly is a hack required by browsers that won't let SVG inherit the background color of the document in which it is embedded.
+				"<circle cx='0' cy='0' r='9' stroke='black' stroke-width='1px' fill='" + Player.getElementsByTagName("eye-color")[0].textContent + "'/>" + 
+				"</svg>";
+				
+				ColorObj.setAttribute("class", "color");
+				ColorObj.setAttribute("type",  "image/svg+xml");
+				ColorObj.setAttribute("data",  "data:image/svg+xml;charset=utf-8,%EF%BB%BF" + new String(window.encodeURIComponent(CircleSVG)).replace('+','%20'));	//	See <https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Functions/encodeURIComponent>.
+				ColorObj.appendChild(document.createTextNode("You should see a colored circle here."));
+								
+				TDColor.setAttribute("class", "color");
+				TDColor.appendChild(ColorObj);
+				
+				TDName.setAttribute("class", "name");
+				TDName.appendChild(document.createTextNode(Player.getElementsByTagName("name")[0].textContent));
+				
+				TDScore.setAttribute("class", "score");
+				TDScore.appendChild(document.createTextNode(Player.getElementsByTagName("score")[0].textContent));
+				
+				TDBonus.setAttribute("class", "bonus");
+				TDBonus.appendChild(document.createTextNode(Player.getElementsByTagName("bonus")[0].textContent));
+
+				TDDeaths.setAttribute("class", "deaths");
+				TDDeaths.appendChild(document.createTextNode(Player.getElementsByTagName("deaths")[0].textContent))
+				
+				TR.appendChild(TDColor);
+				TR.appendChild(TDName);
+				TR.appendChild(TDScore);
+				TR.appendChild(TDBonus);
+				TR.appendChild(TDDeaths);
+				ScoresBody.appendChild(TR);
+			}
+			
+		} else {
+			alert('There was a problem with the request. Status: ' + HTTPRequest.status + ". Message: " + HTTPRequest.responseText);
+		}
+	}
+}
+
+function makeRequestLow
+(
+	URL,
+	CompletionProc,
+	ErrorProc,		//	Will receive an XMLHttpRequestProgressEvent parameter when invoked.
+	TimeoutMs
+) 
+{
+	var httpRequest;
+
+	if (window.XMLHttpRequest) { // Mozilla, Safari, ...
+			
+	//	See <http://developer.mozilla.org/En/XMLHttpRequest>:
+			
+		httpRequest = new XMLHttpRequest();
+		if (httpRequest.overrideMimeType)
+			httpRequest.overrideMimeType('text/xml');
+			
+	} else if (window.ActiveXObject) { // IE
+			
+		try {
+			httpRequest = new ActiveXObject("Msxml2.XMLHTTP");
+		} catch (e) {
+			try {
+				httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
+			} catch (e) {}
+		}
+	}
+
+	if (!httpRequest)
+		throw('Cannot create an XMLHttpRequest instance.');
+		
+	httpRequest.onreadystatechange = function() { CompletionProc(httpRequest); };	//	function() { alertContents(httpRequest); };
+		
+	if (ErrorProc !== undefined && ErrorProc != null)
+		httpRequest.onerror = ErrorProc;
+	if (TimeoutMs !== undefined)
+		httpRequest.timeout = TimeoutMs;
+			
+	httpRequest.open('GET', URL, true);
+		
+	httpRequest.setRequestHeader('Content-Type',      'application/x-www-form-urlencoded');
+	httpRequest.setRequestHeader('Cache-Control',     'no-cache');
+	httpRequest.setRequestHeader('If-Modified-Since', 'Wed, 1 Jan 1900 00:00:00 GMT');	//	Required to make Safari work. See <http://www.bitterpill.org/bp/2005-06/safari-xmlhttprequest-undefine.html>
+	httpRequest.send(null);
+		
+	return httpRequest;
+}
+
+requestGameOverInformation();
+
+
+]]>
+</script>
+
+<!-- Google Analytics usage tracking script. Because it's not worth working on a project that no one uses. -->
+
+<script src='http://www.google-analytics.com/ga.js' type='text/javascript'/>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-1102136-8");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+</body>
+</html>

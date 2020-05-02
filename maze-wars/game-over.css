@@ -1,0 +1,61 @@
+@charset "UTF-8";
+
+
+@import "main.css";
+
+
+/*	Maze Wars SVG, by Chris W. Johnson, is a web-based, first-person shooter ultimately inspired by the famous game 
+	"Maze War" created by Steve Colley, Howard Palmer and Greg Thompson. 
+	
+	Copyright (C) 2008-2009 Chris W. Johnson. <http://chriswjohnson.blogspot.com/>
+	
+	Maze Wars SVG is free software: you can redistribute it and/or modify it under the terms of the GNU General Public 
+	License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any 
+	later version.
+	
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
+	details.
+	
+	You should have received a copy of the GNU General Public License along with this program. If not, see 
+	<http://www.gnu.org/licenses/>.
+*/
+
+
+h1 {
+	font-size: 400%;
+}
+
+table#scores-table tbody td.color {
+	text-align: center;
+}
+
+table#scores-table tbody td.name {
+	text-align: left;
+}
+
+table#scores-table tbody td.score, table#scores-table tbody td.bonus, table#scores-table tbody td.deaths {
+	text-align: right;
+}
+
+td.counter-cell {
+	text-align: center;
+/*	width: 400px; */
+}
+
+table#layout {
+	border: none;
+	width: 100%;
+}
+
+table#layout > tbody > tr > td {
+	border: none;
+	vertical-align: top;
+}
+
+object.color {
+	width:  1em;
+	height: 1em;
+	vertical-align: middle;
+	background-color: #404040;
+}

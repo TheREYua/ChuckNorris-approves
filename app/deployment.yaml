@@ -1,0 +1,46 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-deployment 
+  labels:
+    app: appli-ku 
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  replicas: 3
+  selector:
+    matchLabels:
+      app: appli-ku 
+  template:
+    metadata:
+      labels:
+        app: appli-ku #nginx-1
+    spec:
+      containers:
+      - name: env-tomcat #nginx-2
+        image: gcr.io/devops-274919/tomcat
+        #ports:
+        #- containerPort: 8090
+      - name: server #nginx-1
+        image: eu.gcr.io/juice-shop-project/nginx:v1
+        ports:
+        - containerPort: 80
+        resources:      
+          limits:
+            cpu: "1"
+            memory: "500Mi"
+          requests:
+            cpu: 150m
+            memory: "500Mi"
+        volumeMounts:
+        - name: nginx-proxy-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+      volumes:
+      - name: nginx-proxy-config
+        configMap:
+          name: appli-ku-nginx-conf

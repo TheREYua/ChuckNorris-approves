@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg id='root' width='100%' height='100%' viewBox='-824 -366 1438 420' zoomAndPan='magnify' contentScriptType='text/ecmascript' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<!--
+	Maze Wars SVG, by Chris W. Johnson, is a web-based, first-person shooter ultimately inspired by the famous game 
+	"Maze War" created by Steve Colley, Howard Palmer and Greg Thompson. 
+	
+	Copyright (C) 2008-2009 Chris W. Johnson. <http://chriswjohnson.blogspot.com/>
+	
+	Maze Wars SVG is free software: you can redistribute it and/or modify it under the terms of the GNU General Public 
+	License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any 
+	later version.
+	
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
+	details.
+	
+	You should have received a copy of the GNU General Public License along with this program. If not, see 
+	<http://www.gnu.org/licenses/>.
+-->
+
+<title>Maze Wars Keyboard Graphic</title>
+<desc>Maze Wars Keyboard Graphic by Chris W. Johnson. &lt;http://chriswjohnson.blogspot.com/&gt;</desc>
+
+<defs>
+	<style type='text/css'><![CDATA[
+		
+		svg {
+		/*	background-color: inherit;	*//* This worked in Safari 3, but has ceased to work in Safari 4, and other browsers based on that WebKit engine. */
+			background-color: #404040;	/* This is the background color of the "instructions.html" page. Since we can't depend on "inherit", we have to hard-code this common color value into both files. Ugh. */
+		}
+		
+		#key-back {
+			fill: silver;
+			stroke-width: 1px;
+			stroke: black;
+		}
+	
+		#key-front {
+			fill: white;
+			stroke-width: 1px;
+			stroke: gray;
+		}
+		
+		#arrow {
+			
+			fill: #F0F0F0;
+			stroke-width: 3px;
+			stroke: black;
+		}
+	
+	]]></style>
+</defs>
+
+<defs>
+	
+	<g id="key">
+		<rect id="key-back"  x="-50" y="-50" width="100" height="100" rx="10" ry="10"/>
+		<rect id="key-front" x="-40" y="-46" width="80"  height="80"  rx="5"  ry="5" />
+	</g>
+	
+	<g id="key-double">
+		<rect id="key-back"  x="-102" y="-50" width="204" height="100" rx="10" ry="10"/>
+		<rect id="key-front" x="-92"  y="-46" width="184" height="80"  rx="5"  ry="5" />
+	</g>
+	
+	<g id="space-bar">
+		<rect id="key-back"  x="-202" y="-50" width="404" height="100" rx="10" ry="10"/>
+		<rect id="key-front" x="-192" y="-46" width="384" height="80"  rx="5"  ry="5" />
+	</g>
+	
+	<g id="key-double-vertical">
+		<rect id="key-back"  x="-50" y="-154" width="100" height="204" rx="10" ry="10"/>
+		<rect id="key-front" x="-40" y="-150" width="80"  height="184" rx="5"  ry="5" />
+	</g>
+	
+	<path id='arrow' d="M-10,10v-20h-10l20,-20l20,20h-10v20z" transform="scale(0.9)"/>
+	
+</defs>
+
+<!--<rect stroke="black" fill="none" x="-824" y="-366" width="1438" height="420"/>-->
+
+
+<!-- Fourth (top) row of keys. -->
+
+
+<use xlink:href="#key" transform="translate( -600 -312)"/>
+<text x="-600" y="-323" textLength="24" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-weight="bold" font-size='30'>E</text>
+<text x="-600" y="-293" textLength="58" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-size='15'>Peek Left</text>
+
+<use xlink:href="#key" transform="translate( -496 -312)"/>
+<text x="-496" y="-323" textLength="24" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-weight="bold" font-size='30'>R</text>
+<text x="-496" y="-293" textLength="58" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-size='15'>Forward</text>
+
+<use xlink:href="#key" transform="translate( -392 -312)"/>
+<text x="-392" y="-323" textLength="24" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-weight="bold" font-size='30'>T</text>
+<text x="-392" y="-293" textLength="58" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-size='15'>Peek Right</text>
+
+
+<use xlink:href="#key" transform="translate( 248 -312)"/>
+<text x="248" y="-323" textLength="24" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-weight="bold" font-size='30'>7</text>
+<text x="248" y="-293" textLength="58" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-size='15'>Peek Left</text>
+
+<use xlink:href="#key" transform="translate( 352 -312)"/>
+<text x="352" y="-323" textLength="24" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-weight="bold" font-size='30'>8</text>
+<text x="352" y="-293" textLength="55" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-size='15'>Forward</text>
+
+<use xlink:href="#key" transform="translate( 456 -312)"/>
+<text x="456" y="-323" textLength="24" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-weight="bold" font-size='30'>9</text>
+<text x="456" y="-293" textLength="68" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-size='15'>Peek Right</text>
+
+<use xlink:href="#key" transform="translate( 560 -312)"/>
+
+
+<!-- Third row of keys. -->
+
+<use xlink:href="#key" transform="translate( -770 -208)"/>
+<text x="-770" y="-219" textLength="24" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-weight="bold" font-size='30'>A</text>
+<text x="-770" y="-189" textLength="58" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-size='15'>Turn 180°</text>
+
+<use xlink:href="#key" transform="translate( -666 -208)"/>
+<text x="-666" y="-219" textLength="24" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-weight="bold" font-size='30'>S</text>
+<text x="-666" y="-189" textLength="58" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-size='15'>Peek Left</text>
+
+<use xlink:href="#key" transform="translate( -562 -208)"/>
+<text x="-562" y="-219" textLength="24" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-weight="bold" font-size='30'>D</text>
+<text x="-562" y="-189" textLength="58" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-size='15'>Turn Left</text>
+
+<use xlink:href="#key" transform="translate( -458 -208)"/>
+<text x="-458" y="-219" textLength="24" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-weight="bold" font-size='30'>F</text>
+<text x="-458" y="-189" textLength="58" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-size='15'>Forward</text>
+
+<use xlink:href="#key" transform="translate( -354 -208)"/>
+<text x="-354" y="-219" textLength="24" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-weight="bold" font-size='30'>G</text>
+<text x="-354" y="-189" textLength="58" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-size='15'>Turn Right</text>
+
+<use xlink:href="#key" transform="translate( -250 -208)"/>
+<text x="-250" y="-219" textLength="24" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-weight="bold" font-size='30'>H</text>
+<text x="-250" y="-189" textLength="58" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-size='15'>Peek Right</text>
+
+
+<use xlink:href="#key" transform="translate( 248 -208)"/>
+<text x="248" y="-219" textLength="24" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-weight="bold" font-size='30'>4</text>
+<text x="248" y="-189" textLength="58" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-size='15'>Turn Left</text>
+
+<use xlink:href="#key" transform="translate( 352 -208)"/>
+<text x="352" y="-219" textLength="24" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-weight="bold" font-size='30'>5</text>
+<text x="352" y="-189" textLength="56" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-size='15'>Reverse</text>
+
+<use xlink:href="#key" transform="translate( 456 -208)"/>
+<text x="456" y="-219" textLength="24" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-weight="bold" font-size='30'>6</text>
+<text x="456" y="-189" textLength="68" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-size='15'>Turn Right</text>
+
+<use xlink:href="#key" transform="translate( 560 -208)"/>
+
+
+<!-- Second row of keys. -->
+
+<use xlink:href="#key" transform="translate( -408 -104)"/>
+<text x="-408" y="-115" textLength="24" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-weight="bold" font-size='30'>V</text>
+<text x="-408" y="-85"  textLength="56" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-size='15'>Reverse</text>
+
+<use xlink:href="#key"   transform="translate(   0 -104)"/>
+<use xlink:href="#arrow" transform="translate(   0 -114)"/>
+<text x="0"   y="-84"  textLength="55" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-size='15'>Forward</text>
+
+<use xlink:href="#key" transform="translate( 248 -104)"/>
+
+<use xlink:href="#key" transform="translate( 352 -104)"/>
+
+<use xlink:href="#key" transform="translate( 456 -104)"/>
+
+
+<!-- First (bottom) row of keys. -->
+	
+<use xlink:href="#space-bar" transform="translate(-400 0)"/>
+<text x="-400" y="-15" textLength="100" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-weight="bold" font-size='20'>(space bar)</text>
+<text x="-400" y="20"  textLength="44"  text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-size='15'>Shoot</text>
+	
+<use xlink:href="#key" transform="translate(-104 0)"/>
+<use xlink:href="#arrow" transform="translate(-94 -20) rotate(-90)"/>
+<text x="-104" y="20" textLength="58" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-size='15'>Turn Left</text>
+
+<use xlink:href="#key"/>
+<use xlink:href="#arrow" transform="translate(0 -30) rotate(180)"/>
+<text x="0" y="20" textLength="56" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-size='15'>Reverse</text>
+
+<use xlink:href="#key" transform="translate( 104 0)"/>
+<use xlink:href="#arrow" transform="translate(94 -20) rotate(90)"/>
+<text x="104" y="20" textLength="68" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-size='15'>Turn Right</text>
+
+<use xlink:href="#key-double" transform="translate(300 0)"/>
+<text x="300" y="-10" textLength="24" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-weight="bold" font-size='30'>0</text>
+<text x="300" y="20"  textLength="44" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-size='15'>Shoot</text>
+
+<use xlink:href="#key" transform="translate( 456 0)"/>
+
+<use xlink:href="#key-double-vertical" transform="translate( 560 0)"/>
+<text x="560" y="-65" textLength="64" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-weight="bold" font-size='20'>enter</text>
+<text x="560" y="-40" textLength="64" text-anchor='middle' lengthAdjust='spacingAndGlyphs' font-family='sans-serif' font-size='15'>Turn 180°</text>
+
+</svg>

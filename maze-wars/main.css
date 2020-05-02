@@ -1,0 +1,119 @@
+@charset "UTF-8";
+
+
+@import "qwicap.css";
+
+
+/*	Maze Wars SVG, by Chris W. Johnson, is a web-based, first-person shooter ultimately inspired by the famous game 
+	"Maze War" created by Steve Colley, Howard Palmer and Greg Thompson. 
+	
+	Copyright (C) 2008-2009 Chris W. Johnson. <http://chriswjohnson.blogspot.com/>
+	
+	Maze Wars SVG is free software: you can redistribute it and/or modify it under the terms of the GNU General Public 
+	License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any 
+	later version.
+	
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
+	details.
+	
+	You should have received a copy of the GNU General Public License along with this program. If not, see 
+	<http://www.gnu.org/licenses/>.
+*/
+
+
+html {
+	background-color: #404040;	/* Safari 3.1.2 requires this, in order to set the background color of the *entire* document. */
+}
+
+body {
+	background-color: #404040;
+	color: white;
+	font-family: "Synchro LET", Georgia, "Times New Roman", serif;
+	font-style: normal;
+	font-weight: lighter;
+	width: 80ex;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+div#welcome-svg {
+	text-align: center;
+	margin-top: 3em;
+	color: red;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+div#welcome-svg p {
+	text-align: left;
+	border: 2px double red;
+	padding: 1em 2em;
+}
+
+h1 {
+	text-align: center;
+	font-weight: normal;
+}
+
+form {
+	margin: 0px;
+}
+
+div#sign-in {
+	margin-top: 2em;
+	border: 1px solid white;
+	padding: 1em 2em;
+	text-align: center;
+}
+
+div.conforms {
+	margin-top: 4em;
+	text-align: right;
+}
+
+:link {
+	color: #8FD0F8;	/* AKA: SVG's "lightskyblue" */
+}
+
+:visited {
+	color: #FDB4C3;	/* AKA: SVG's "lightpink" */
+}
+
+table {
+	border: 1px solid white;
+	border-collapse: collapse;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+td, th {
+	border: 1px solid white;
+	padding: 0.25ex 1em;
+}
+
+th {
+	background-color: #505050;
+}
+
+button[type='submit'] {
+	font-family: inherit;
+	color: inherit;
+	background-color: #505050;
+	padding-left: 2em;
+	padding-right: 2em;
+}
+
+*.keys {
+	text-align: center;
+	margin-left: auto;
+	margin-right: auto;	
+}
+
+*.qwicap-form-with-bad-field-error-message {
+	color: black;	/*	White on pale red is hard to read, so we override the text color in this case. */
+}
+
+*.note {
+	color: red;
+}
